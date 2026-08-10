@@ -8,7 +8,7 @@
     <ProjectReference Include="..\SPT.SinglePlayer\SPT.SinglePlayer.csproj" />
     <ProjectReference Include="..\SPT.Custom\SPT.Custom.csproj" />
   </ItemGroup>
-  <!-- Assembles the deployment structure under project/Build after the aggregator builds. -->
+  <!-- Assembles the deployment structure under Build/ after the aggregator builds. -->
   <Target Name="AssembleBuildOutput" AfterTargets="Build">
     <PropertyGroup>
       <BuildRoot>$(MSBuildProjectDirectory)\..\Build</BuildRoot>
@@ -24,6 +24,6 @@
     <RemoveDir Directories="$(BuildRoot)" />
     <Copy SourceFiles="@(PluginDll)" DestinationFolder="$(PluginsDir)" />
     <Copy SourceFiles="@(PatcherDll)" DestinationFolder="$(PatchersDir)" />
-    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\..\LICENSE.md" DestinationFiles="$(BuildRoot)\LICENSE-Modules.txt" />
+    <Copy SourceFiles="$(MSBuildProjectDirectory)\..\LICENSE.md" DestinationFiles="$(BuildRoot)\LICENSE-Modules.txt" />
   </Target>
 </Project>

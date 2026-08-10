@@ -1,5 +1,5 @@
 <Project>
-  <!-- Shared configuration imported by every project under project/. -->
+  <!-- Shared configuration imported by every project in the repository. -->
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <LangVersion>latest</LangVersion>
