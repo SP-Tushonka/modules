@@ -11,12 +11,13 @@ namespace SPT.PrePatch;
 
 public static class SptPrePatcher
 {
-    public static IEnumerable<string> TargetDLLs { get; } = new[] { "Assembly-CSharp.dll" };
-    private const string _sptPluginFolder = "plugins/spt";
+    public static IEnumerable<string> TargetDLLs { get; } = ["Assembly-CSharp.dll"];
+    private const string PluginFolder = "plugins";
+    private const string SptPluginFolder = "plugins/spt";
 
     private const string EnumEntriesRoute = "/singleplayer/customEnumEntries";
 
-    private static ManualLogSource _logger = Logger.CreateLogSource(nameof(SptPrePatcher));
+    private static readonly ManualLogSource _logger = Logger.CreateLogSource(nameof(SptPrePatcher));
 
     public static void Patch(ref AssemblyDefinition assembly)
     {
@@ -115,21 +116,38 @@ public static class SptPrePatcher
     private static void PerformPreValidation()
     {
         // Check if the launcher was used
-        bool launcherUsed = ValidateLauncherUse(out string launcherError);
+        var launcherUsed = ValidateLauncherUse(out var launcherError);
 
         // Check that all the expected plugins are in the BepInEx/Plugins/spt/ folder
-        string assemblyFolder = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-        string sptPluginPath = Path.GetFullPath(Path.Combine(assemblyFolder, "..", _sptPluginFolder));
-        bool pluginsValidated = ValidateSptPlugins(sptPluginPath, out string pluginErrorMessage);
+        var executingAssembly = System.Reflection.Assembly.GetExecutingAssembly();
+        var assemblyFolder = Path.GetDirectoryName(executingAssembly.Location);
+        var pluginPath = Path.GetFullPath(Path.Combine(assemblyFolder, "..", PluginFolder));
+        var sptPluginPath = Path.GetFullPath(Path.Combine(assemblyFolder, "..", SptPluginFolder));
+        var pluginsValidated = ValidateSptPlugins(sptPluginPath, out string pluginErrorMessage);
 
-        // If either the launcher wasn't used, or the plugins weren't found, exit
-        if (!launcherUsed || !pluginsValidated)
+        if (!launcherUsed)
         {
-            string errorTitle = (!launcherUsed) ? "Startup Error" : "Missing Core Files";
-            string errorMessage = (!launcherUsed) ? launcherError : pluginErrorMessage;
-            MessageBoxHelper.Show(errorMessage, $"[SPT] {errorTitle}", MessageBoxHelper.MessageBoxType.OK);
-            Environment.Exit(0);
+            ExitWithError("Startup Error", launcherError);
         }
+
+        if (!pluginsValidated)
+        {
+            ExitWithError("Missing Core Files", pluginErrorMessage);
+        }
+
+        // Check no mods were built against a different version of SPT
+        var sptVersion = executingAssembly.GetName().Version;
+
+        if (!PluginValidator.ValidatePlugins(_logger, pluginPath, sptPluginPath, sptVersion, out string mismatchErrorMessage))
+        {
+            ExitWithError("Outdated Mods", mismatchErrorMessage);
+        }
+    }
+
+    private static void ExitWithError(string title, string message)
+    {
+        MessageBoxHelper.Show(message, title, MessageBoxHelper.MessageBoxType.OK);
+        Environment.Exit(0);
     }
 
     private static bool ValidateLauncherUse(out string message)
