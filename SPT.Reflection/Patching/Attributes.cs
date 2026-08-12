@@ -1,4 +1,5 @@
 using System;
+using HarmonyLib;
 using JetBrains.Annotations;
 
 namespace SPT.Reflection.Patching;
@@ -22,6 +23,13 @@ public class PatchFinalizerAttribute : Attribute { }
 [MeansImplicitUse]
 [AttributeUsage(AttributeTargets.Method)]
 public class PatchILManipulatorAttribute : Attribute { }
+
+[MeansImplicitUse]
+[AttributeUsage(AttributeTargets.Method)]
+public class PatchReverseAttribute(HarmonyReversePatchType type = HarmonyReversePatchType.Original) : Attribute
+{
+    public HarmonyReversePatchType reversePatchType = type;
+}
 
 /// <summary>
 ///     If added to a patch, it will not be used during auto patching

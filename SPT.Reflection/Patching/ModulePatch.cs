@@ -38,6 +38,7 @@ public abstract class ModulePatch
     private readonly List<HarmonyMethod> _transpilerList;
     private readonly List<HarmonyMethod> _finalizerList;
     private readonly List<HarmonyMethod> _ilmanipulatorList;
+    private readonly List<HarmonyMethod> _reverseList;
 
     protected static ManualLogSource Logger { get; private set; }
 
@@ -59,6 +60,7 @@ public abstract class ModulePatch
         _transpilerList = GetPatchMethods(typeof(PatchTranspilerAttribute));
         _finalizerList = GetPatchMethods(typeof(PatchFinalizerAttribute));
         _ilmanipulatorList = GetPatchMethods(typeof(PatchILManipulatorAttribute));
+        _reverseList = GetPatchMethods(typeof(PatchReverseAttribute));
 
         if (
             _prefixList.Count == 0
@@ -66,6 +68,7 @@ public abstract class ModulePatch
             && _transpilerList.Count == 0
             && _finalizerList.Count == 0
             && _ilmanipulatorList.Count == 0
+            && _reverseList.Count == 0
         )
         {
             throw new PatchException($"{GetType().Name}: At least one of the patch methods must be specified");
@@ -136,6 +139,12 @@ public abstract class ModulePatch
             foreach (var ilmanipulator in _ilmanipulatorList)
             {
                 _harmony!.Patch(TargetMethod, ilmanipulator: ilmanipulator);
+            }
+
+            foreach (var reverse in _reverseList)
+            {
+                reverse.reversePatchType = reverse.method.GetCustomAttribute<PatchReverseAttribute>().reversePatchType;
+                _harmony!.CreateReversePatcher(TargetMethod, reverse).Patch();
             }
 
             Logger.LogInfo($"Enabled patch {GetType().Name}");
