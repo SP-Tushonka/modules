@@ -1,54 +1,27 @@
-﻿using SPT.Common.Http;
 using UnityEngine;
 
 public class BundleUtils : MonoBehaviour
 {
-    private GameObject rootObject;
-    private int current;
-    private int maximum;
-    private string bundleName;
-    private string downloadSpeed;
-    private string fileSizeInfo;
+    private string[] errorLines;
     private Texture2D bgTexture;
     private bool started;
     private GUIStyle labelStyle;
     private GUIStyle windowStyle;
     private Rect windowRect;
 
-    public static BundleUtils Create()
+    public static BundleUtils ShowError(string[] lines)
     {
         GameObject bundleUtilsObject = new GameObject("BundleUtilsObject");
         BundleUtils bundleUtils = bundleUtilsObject.AddComponent<BundleUtils>();
-        bundleUtils.rootObject = bundleUtilsObject;
-        bundleUtils.current = 0;
-        bundleUtils.maximum = 0;
         bundleUtils.enabled = true;
         bundleUtils.bgTexture = new Texture2D(2, 2);
-        bundleUtils.windowRect = bundleUtils.CreateRectangle(500, 100);
+        bundleUtils.errorLines = lines;
+        bundleUtils.windowRect = bundleUtils.CreateRectangle(700, 60 + (lines.Length * 20));
+
+        // The caller throws straight after this, which means this will never render
+        DontDestroyOnLoad(bundleUtilsObject);
+
         return bundleUtils;
-    }
-
-    public void Init(int length)
-    {
-        maximum = length;
-    }
-
-    public void SetProgress(int progress, string fileName)
-    {
-        current = progress;
-        bundleName = fileName;
-    }
-
-    public void SetDownloadProgress(DownloadProgress progress)
-    {
-        downloadSpeed = progress.DownloadSpeed;
-        fileSizeInfo = progress.FileSizeInfo;
-    }
-
-    public void Dispose()
-    {
-        Destroy(rootObject);
-        Destroy(this);
     }
 
     public void OnGUI()
@@ -57,8 +30,9 @@ public class BundleUtils : MonoBehaviour
         {
             CreateStyles();
         }
+
         GUI.backgroundColor = Color.black;
-        GUI.Window(0, windowRect, DrawWindow, "Bundle Loading", windowStyle);
+        GUI.Window(0, windowRect, DrawWindow, "Bundle Error", windowStyle);
     }
 
     private void CreateStyles()
@@ -76,15 +50,9 @@ public class BundleUtils : MonoBehaviour
 
     private void DrawWindow(int windowId)
     {
-        var actionText =
-            (!string.IsNullOrEmpty(downloadSpeed) && !string.IsNullOrEmpty(fileSizeInfo)) ? "Downloading bundle" : "Loading bundle";
-
-        GUI.Label(new Rect(0, 35, 500, 20), $"{actionText}: {current} / {maximum}", labelStyle);
-        GUI.Label(new Rect(0, 50, 500, 20), bundleName, labelStyle);
-
-        if (!string.IsNullOrEmpty(downloadSpeed) && !string.IsNullOrEmpty(fileSizeInfo))
+        for (var i = 0; i < errorLines.Length; i++)
         {
-            GUI.Label(new Rect(0, 65, 500, 20), $"Speed: {downloadSpeed} | Size: {fileSizeInfo}", labelStyle);
+            GUI.Label(new Rect(0, 35 + (i * 20), 700, 20), errorLines[i], labelStyle);
         }
     }
 }

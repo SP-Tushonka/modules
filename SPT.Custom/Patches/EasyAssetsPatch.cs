@@ -92,35 +92,21 @@ public class EasyAssetsPatch : ModulePatch
         }
 
         var bundles = new EasyBundle[bundleNames.Length];
-
-        BundleCrcCache.Load();
-
-        var bundleUtils = BundleUtils.Create();
-        bundleUtils.Init(bundleNames.Length);
+        var missing = new List<string>();
 
         for (var i = 0; i < bundleNames.Length; i++)
         {
             var key = bundleNames[i];
             var path = eftBundlesPath;
 
-            // acquire external bundle
             if (BundleManager.Bundles.TryGetValue(key, out var bundleInfo))
             {
-                bundleUtils.SetProgress(i, bundleInfo.FileName);
                 // we need base path without file extension
                 path = BundleManager.GetBundlePath(bundleInfo);
 
-                // only download when connected externally
-                if (await BundleManager.ShouldAcquire(bundleInfo))
+                if (!VFS.Exists(BundleManager.GetBundleFilePath(bundleInfo)))
                 {
-                    if (VFS.Exists(BundleManager.GetBundleFilePath(bundleInfo)))
-                    {
-                        VFS.DeleteFile(BundleManager.GetBundleFilePath(bundleInfo));
-                    }
-
-                    Action<DownloadProgress> progressCallback = bundleUtils.SetDownloadProgress;
-
-                    await BundleManager.DownloadBundle(bundleInfo, progressCallback);
+                    missing.Add(bundleInfo.FileName);
                 }
             }
 
@@ -128,9 +114,31 @@ public class EasyAssetsPatch : ModulePatch
             bundles[i] = new EasyBundle(key, path, manifest, bundleLock, bundleCheck);
         }
 
-        BundleCrcCache.Save();
+        if (missing.Count > 0)
+        {
+            var searchedPath = RequestHandler.IsLocal ? null : BundleManager.GetBundlePath(BundleManager.Bundles.Values.First());
 
-        bundleUtils.Dispose();
+            LogMissing(missing, searchedPath);
+
+            if (!RequestHandler.IsLocal)
+            {
+                BundleUtils.ShowError(
+                    [
+                        $"{missing.Count} of {BundleManager.Bundles.Count} mod bundles are missing from the download cache.",
+                        "",
+                        "Close the game and start it from the SPT launcher, which downloads them before launch.",
+                        $"Expected location: {searchedPath}",
+                        "",
+                        $"First missing: {missing[0]}",
+                    ]
+                );
+
+                throw new InvalidOperationException(
+                    $"{missing.Count} mod bundle(s) are missing from the download cache. "
+                        + "Start the game through the SPT launcher so it can download them."
+                );
+            }
+        }
 
         // create dependency graph
         instance.Manifest = manifest;
@@ -138,6 +146,34 @@ public class EasyAssetsPatch : ModulePatch
         instance.System = new DependencyGraph(bundles, defaultKey, shouldExclude);
 
         return instance;
+    }
+
+    private static void LogMissing(List<string> missing, string searchedPath)
+    {
+        const int listLimit = 10;
+
+        var isLocal = searchedPath == null;
+
+        Logger.LogError(
+            isLocal
+                ? $"{missing.Count} of {BundleManager.Bundles.Count} mod bundles were not found in their mod folders"
+                : $"{missing.Count} of {BundleManager.Bundles.Count} mod bundles were not found under {searchedPath}"
+        );
+
+        if (isLocal)
+        {
+            Logger.LogError("The server lists these bundles but the files are not on disk, so the mods needing them will not work.");
+        }
+
+        foreach (var name in missing.Take(listLimit))
+        {
+            Logger.LogError($"Missing bundle: {name}");
+        }
+
+        if (missing.Count > listLimit)
+        {
+            Logger.LogError($"...and {missing.Count - listLimit} more");
+        }
     }
 
     // NOTE: used by:
