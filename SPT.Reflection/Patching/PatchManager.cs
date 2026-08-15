@@ -137,7 +137,6 @@ public class PatchManager
                 throw new PatchException("Could not find any patches defined in the assembly during auto patching");
             }
 
-            var successfulPatches = 0;
             foreach (var type in patches)
             {
                 try
@@ -146,7 +145,6 @@ public class PatchManager
                     patch.Enable(_harmony);
 
                     _patches.Add(patch);
-                    successfulPatches++;
                 }
                 catch (Exception ex)
                 {
@@ -154,7 +152,7 @@ public class PatchManager
                 }
             }
 
-            _logger.LogInfo($"Enabled {successfulPatches} patches");
+            _logger.LogInfo($"Enabled {_patches.Count} patches");
             return;
         }
 
