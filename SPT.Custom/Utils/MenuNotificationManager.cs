@@ -71,12 +71,14 @@ public class MenuNotificationManager : MonoBehaviour
 
         // Enable the watermark if this is a bleeding edge build.
         // Enabled in start to allow time for the request containing the bool to process.
+        /*
         if (release.isBeta)
         {
             new BetaLogoPatch().Enable();
             new BetaLogoPatch2().Enable();
             new BetaLogoPatch3().Enable();
         }
+        */
 
         DisallowedPlugins = Chainloader.PluginInfos.Values.Select(pi => pi.Metadata.GUID).Except(WhitelistedPlugins).ToArray();
 
