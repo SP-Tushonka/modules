@@ -28,7 +28,7 @@ public class PatchILManipulatorAttribute : Attribute { }
 [AttributeUsage(AttributeTargets.Method)]
 public class PatchReverseAttribute(HarmonyReversePatchType type = HarmonyReversePatchType.Original) : Attribute
 {
-    public HarmonyReversePatchType reversePatchType = type;
+    public HarmonyReversePatchType ReversePatchType { get; } = type;
 }
 
 /// <summary>
