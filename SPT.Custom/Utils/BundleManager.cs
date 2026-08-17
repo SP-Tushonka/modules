@@ -1,7 +1,8 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using SPT.Common.Http;
+using SPT.Common.Utils;
 using SPT.Custom.Models;
 
 namespace SPT.Custom.Utils;
@@ -16,15 +17,17 @@ public static class BundleManager
     {
         Bundles = new ConcurrentDictionary<string, BundleItem>();
     }
-
-    public static string GetBundlePath(BundleItem bundle)
-    {
-        return RequestHandler.IsLocal ? $"{RuntimePath}{bundle.ModPath}/bundles/" : CachePath;
-    }
-
+    
     public static string GetBundleFilePath(BundleItem bundle)
     {
-        return GetBundlePath(bundle) + bundle.FileName;
+        var cachedPath = CachePath + bundle.Crc.ToString("X8") + "/" + bundle.FileName;
+
+        if (VFS.Exists(cachedPath))
+        {
+            return cachedPath;
+        }
+
+        return RuntimePath + bundle.ModPath + "/bundles/" + bundle.FileName;
     }
 
     public static async Task DownloadManifest()

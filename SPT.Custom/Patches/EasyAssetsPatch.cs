@@ -101,10 +101,12 @@ public class EasyAssetsPatch : ModulePatch
 
             if (BundleManager.Bundles.TryGetValue(key, out var bundleInfo))
             {
-                // we need base path without file extension
-                path = BundleManager.GetBundlePath(bundleInfo);
+                var filePath = BundleManager.GetBundleFilePath(bundleInfo);
 
-                if (!VFS.Exists(BundleManager.GetBundleFilePath(bundleInfo)))
+                // we need base path without file extension
+                path = filePath.Substring(0, filePath.Length - bundleInfo.FileName.Length);
+
+                if (!VFS.Exists(filePath))
                 {
                     missing.Add(bundleInfo.FileName);
                 }
@@ -116,28 +118,21 @@ public class EasyAssetsPatch : ModulePatch
 
         if (missing.Count > 0)
         {
-            var searchedPath = RequestHandler.IsLocal ? null : BundleManager.GetBundlePath(BundleManager.Bundles.Values.First());
+            LogMissing(missing);
 
-            LogMissing(missing, searchedPath);
+            BundleUtils.ShowError(
+                [
+                    $"{missing.Count} of {BundleManager.Bundles.Count} mod bundles could not be found.",
+                    "",
+                    "Close the game and start it from the SPT launcher, which fetches them before launch.",
+                    "",
+                    $"First missing: {missing[0]}",
+                ]
+            );
 
-            if (!RequestHandler.IsLocal)
-            {
-                BundleUtils.ShowError(
-                    [
-                        $"{missing.Count} of {BundleManager.Bundles.Count} mod bundles are missing from the download cache.",
-                        "",
-                        "Close the game and start it from the SPT launcher, which downloads them before launch.",
-                        $"Expected location: {searchedPath}",
-                        "",
-                        $"First missing: {missing[0]}",
-                    ]
-                );
-
-                throw new InvalidOperationException(
-                    $"{missing.Count} mod bundle(s) are missing from the download cache. "
-                        + "Start the game through the SPT launcher so it can download them."
-                );
-            }
+            throw new InvalidOperationException(
+                $"{missing.Count} mod bundle(s) could not be found. Start the game through the SPT launcher so it can fetch them."
+            );
         }
 
         // create dependency graph
@@ -148,22 +143,13 @@ public class EasyAssetsPatch : ModulePatch
         return instance;
     }
 
-    private static void LogMissing(List<string> missing, string searchedPath)
+    private static void LogMissing(List<string> missing)
     {
         const int listLimit = 10;
 
-        var isLocal = searchedPath == null;
-
         Logger.LogError(
-            isLocal
-                ? $"{missing.Count} of {BundleManager.Bundles.Count} mod bundles were not found in their mod folders"
-                : $"{missing.Count} of {BundleManager.Bundles.Count} mod bundles were not found under {searchedPath}"
+            $"{missing.Count} of {BundleManager.Bundles.Count} mod bundles were found in neither the bundle cache nor a mod folder"
         );
-
-        if (isLocal)
-        {
-            Logger.LogError("The server lists these bundles but the files are not on disk, so the mods needing them will not work.");
-        }
 
         foreach (var name in missing.Take(listLimit))
         {
