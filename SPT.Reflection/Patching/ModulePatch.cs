@@ -143,8 +143,9 @@ public abstract class ModulePatch
 
             foreach (var reverse in _reverseList)
             {
-                reverse.reversePatchType = reverse.method.GetCustomAttribute<PatchReverseAttribute>().reversePatchType;
-                _harmony!.CreateReversePatcher(TargetMethod, reverse).Patch();
+                var reversePatchType =
+                    reverse.method.GetCustomAttribute<PatchReverseAttribute>()?.ReversePatchType ?? HarmonyReversePatchType.Original;
+                _harmony!.CreateReversePatcher(TargetMethod, reverse).Patch(reversePatchType);
             }
 
             Logger.LogInfo($"Enabled patch {GetType().Name}");
