@@ -16,6 +16,7 @@ public static class SptPrePatcher
     private const string SptPluginFolder = "plugins/spt";
 
     private const string EnumEntriesRoute = "/singleplayer/customEnumEntries";
+    private const string OutdatedModsExitMessage = "Update or remove them before starting the game. Exiting.";
 
     private static readonly ManualLogSource _logger = Logger.CreateLogSource(nameof(SptPrePatcher));
 
@@ -137,11 +138,28 @@ public static class SptPrePatcher
 
         // Check no mods were built against a different version of SPT
         var sptVersion = executingAssembly.GetName().Version;
+        var strictPluginVersionCheck = PrePatchConfig.StrictPluginVersionCheck;
 
-        if (!PluginValidator.ValidatePlugins(_logger, pluginPath, sptPluginPath, sptVersion, out string mismatchErrorMessage))
+        if (!PluginValidator.ValidatePlugins(_logger, pluginPath, sptPluginPath, sptVersion, out string compatibilityReport))
         {
-            ExitWithError("Outdated Mods", mismatchErrorMessage);
+            EnforcePluginVersionCheck(strictPluginVersionCheck, compatibilityReport);
         }
+    }
+
+    private static void EnforcePluginVersionCheck(bool strictPluginVersionCheck, string compatibilityReport)
+    {
+        if (strictPluginVersionCheck)
+        {
+            ExitWithError("Outdated Mods", compatibilityReport + OutdatedModsExitMessage);
+            return;
+        }
+
+        _logger.LogWarning(
+            "Plugin version validation failed, but StrictPluginVersionCheck is disabled. "
+                + "Startup will continue and BepInEx will attempt to load these plugins. This may cause runtime errors."
+                + Environment.NewLine
+                + compatibilityReport
+        );
     }
 
     private static void ExitWithError(string title, string message)

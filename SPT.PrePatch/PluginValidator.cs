@@ -136,6 +136,6 @@ internal static class PluginValidator
             message.AppendLine($"    ...and {mismatched.Count - MaxListedPlugins} more, see the log for the full list");
         }
 
-        return message.AppendLine().Append("Update or remove them before starting the game. Exiting.").ToString();
+        return message.AppendLine().ToString();
     }
 }
