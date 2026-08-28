@@ -20,7 +20,6 @@ public class SPTSingleplayerPlugin : BaseUnityPlugin
             // TODO: check if these patches are needed
             new TinnitusFixPatch().Enable(); // Probably needed
             new EmptyInfilFixPatch().Enable();
-            new OverrideMaxAiAliveInRaidValuePatch().Enable();
 
             // Still need
             new DisablePMCExtractsForScavsPatch().Enable();
