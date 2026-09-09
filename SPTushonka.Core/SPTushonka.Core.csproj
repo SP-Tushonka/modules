@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>SPTushonka.Core</AssemblyName>
+    <RootNamespace>SPTushonka.Core</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="websocket-sharp"><HintPath>$(Interop)/websocket-sharp.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../SPTushonka.Reflection/SPTushonka.Reflection.csproj" />
+  </ItemGroup>
+</Project>

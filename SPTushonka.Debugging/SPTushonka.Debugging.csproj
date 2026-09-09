@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>SPTushonka.Debugging</AssemblyName>
+    <RootNamespace>SPTushonka.Debugging</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="UnityEngine.IMGUIModule"><HintPath>$(Interop)/UnityEngine.IMGUIModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="UnityEngine.TextRenderingModule"><HintPath>$(Interop)/UnityEngine.TextRenderingModule.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="EFT-Logging"><HintPath>$(Interop)/EFT-Logging.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Il2CppMicrosoft.Extensions.Logging.Abstractions"><HintPath>$(Interop)/Il2CppMicrosoft.Extensions.Logging.Abstractions.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../SPTushonka.Reflection/SPTushonka.Reflection.csproj" />
+    <ProjectReference Include="../SPTushonka.Common/SPTushonka.Common.csproj" />
+  </ItemGroup>
+</Project>

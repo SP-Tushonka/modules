@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>SPTushonka.SinglePlayer</AssemblyName>
+    <RootNamespace>SPTushonka.SinglePlayer</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../SPTushonka.Reflection/SPTushonka.Reflection.csproj" />
+  </ItemGroup>
+</Project>

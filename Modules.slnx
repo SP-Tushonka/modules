@@ -2,12 +2,12 @@
   <Configurations>
     <BuildType Name="Release" />
   </Configurations>
-  <Project Path="SPT.Build/SPT.Build.csproj" />
-  <Project Path="SPT.Common/SPT.Common.csproj" />
-  <Project Path="SPT.Core/SPT.Core.csproj" />
-  <Project Path="SPT.Custom/SPT.Custom.csproj" />
-  <Project Path="SPT.Debugging/SPT.Debugging.csproj" />
-  <Project Path="SPT.PrePatch/SPT.PrePatch.csproj" />
-  <Project Path="SPT.Reflection/SPT.Reflection.csproj" />
-  <Project Path="SPT.SinglePlayer/SPT.SinglePlayer.csproj" />
+  <Project Path="SPTushonka.Build/SPTushonka.Build.csproj" />
+  <Project Path="SPTushonka.Common/SPTushonka.Common.csproj" />
+  <Project Path="SPTushonka.Core/SPTushonka.Core.csproj" />
+  <Project Path="SPTushonka.Custom/SPTushonka.Custom.csproj" />
+  <Project Path="SPTushonka.Debugging/SPTushonka.Debugging.csproj" />
+  <Project Path="SPTushonka.PrePatch/SPTushonka.PrePatch.csproj" />
+  <Project Path="SPTushonka.Reflection/SPTushonka.Reflection.csproj" />
+  <Project Path="SPTushonka.SinglePlayer/SPTushonka.SinglePlayer.csproj" />
 </Solution>

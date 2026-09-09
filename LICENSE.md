@@ -1,8 +1,8 @@
 ﻿# NCSA Open Source License  
 
-Copyright (c) 2024 SPT. All rights reserved.  
+Copyright (c) 2026 SPTushonka. All rights reserved.  
 
-Developed by: SPT
+Developed by: SPTushonka
 
 Permission is hereby granted, free of charge, to any person obtaining a copy  
 of this software and associated documentation files (the "Software"), to deal  
@@ -18,7 +18,7 @@ this list of conditions and the following disclaimers.
 this list of conditions and the following disclaimers in the documentation  
 and/or other materials provided with the distribution.  
 
-* SPT, nor the names of
+* SPTushonka, nor the names of
 its contributors may be used to endorse or promote products derived from  
 this Software without specific prior written permission.  
 

@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\SPTushonka.Common\SPTushonka.Common.csproj" />
+    <ProjectReference Include="..\SPTushonka.Core\SPTushonka.Core.csproj" />
+    <ProjectReference Include="..\SPTushonka.Reflection\SPTushonka.Reflection.csproj" />
+    <ProjectReference Include="..\SPTushonka.PrePatch\SPTushonka.PrePatch.csproj" />
+    <ProjectReference Include="..\SPTushonka.SinglePlayer\SPTushonka.SinglePlayer.csproj" />
+    <ProjectReference Include="..\SPTushonka.Custom\SPTushonka.Custom.csproj" />
+    <ProjectReference Include="..\SPTushonka.Debugging\SPTushonka.Debugging.csproj" />
+  </ItemGroup>
+  <!-- Assembles the deployment structure under Build/ after the aggregator builds. -->
+  <Target Name="AssembleBuildOutput" AfterTargets="Build">
+    <PropertyGroup>
+      <BuildRoot>$(MSBuildProjectDirectory)\..\Build</BuildRoot>
+      <PluginsDir>$(BuildRoot)\BepInEx\plugins\sptushonka</PluginsDir>
+      <PatchersDir>$(BuildRoot)\BepInEx\patchers</PatchersDir>
+    </PropertyGroup>
+    <ItemGroup>
+      <!-- The preloader patcher deploys to patchers/, every other SPTushonka dll to plugins/sptushonka/. -->
+      <PatcherDll Include="$(TargetDir)sptushonka-prepatch.dll" />
+      <PluginDll Include="$(TargetDir)SPTushonka.*.dll" Exclude="$(TargetDir)SPTushonka.Build.dll" />
+    </ItemGroup>
+    <!-- Start from a clean tree so removed plugins don't linger. -->
+    <RemoveDir Directories="$(BuildRoot)" />
+    <Copy SourceFiles="@(PluginDll)" DestinationFolder="$(PluginsDir)" />
+    <Copy SourceFiles="@(PatcherDll)" DestinationFolder="$(PatchersDir)" />
+  </Target>
+</Project>

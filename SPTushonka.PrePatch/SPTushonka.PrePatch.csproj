@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>sptushonka-prepatch</AssemblyName>
+    <RootNamespace>SPTushonka.PrePatch</RootNamespace>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="BepInEx.Preloader.Core"><HintPath>$(BepInExCore)/BepInEx.Preloader.Core.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Iced"><HintPath>$(BepInExCore)/Iced.dll</HintPath><Private>false</Private></Reference>
+    <Reference Include="Mono.Cecil"><HintPath>$(BepInExCore)/Mono.Cecil.dll</HintPath><Private>false</Private></Reference>
+  </ItemGroup>
+</Project>

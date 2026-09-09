@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>SPTushonka.Reflection</AssemblyName>
+    <RootNamespace>SPTushonka.Reflection</RootNamespace>
+  </PropertyGroup>
+</Project>
