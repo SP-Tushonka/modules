@@ -8,7 +8,7 @@ using SPTushonka.Reflection.Patching;
 
 namespace SPTushonka.Debugging;
 
-[BepInPlugin("sptushonka.debugging", "SPTushonka Debugging", "1.0.0")]
+[BepInPlugin("sptushonka.debugging", "SPTushonka Debugging", PluginInfo.Version)]
 public class Plugin : BasePlugin
 {
     public override void Load()

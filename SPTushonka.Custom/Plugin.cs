@@ -8,7 +8,7 @@ using SPTushonka.Reflection.Patching;
 
 namespace SPTushonka.Custom;
 
-[BepInPlugin("sptushonka.custom", "SPTushonka Custom", "1.0.0")]
+[BepInPlugin("sptushonka.custom", "SPTushonka Custom", PluginInfo.Version)]
 public class Plugin : BasePlugin
 {
     // The item icon cache is a static path set once in the type initialiser, so it only needs

@@ -7,7 +7,7 @@ using SPTushonka.Reflection.Patching;
 
 namespace SPTushonka.SinglePlayer;
 
-[BepInPlugin("sptushonka.singleplayer", "SPTushonka SinglePlayer", "1.0.0")]
+[BepInPlugin("sptushonka.singleplayer", "SPTushonka SinglePlayer", PluginInfo.Version)]
 public class Plugin : BasePlugin
 {
     public override void Load()

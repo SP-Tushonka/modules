@@ -1,55 +1,164 @@
 ﻿<Project>
-  <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <LangVersion>latest</LangVersion>
-    <Nullable>disable</Nullable>
-    <Configuration>Release</Configuration>
-    <Company>Single Player Tushonka</Company>
-    <Copyright>Copyright @ SPT 2026</Copyright>
-    <!--
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <Nullable>disable</Nullable>
+        <Configuration>Release</Configuration>
+        <Company>Single Player Tushonka</Company>
+        <Copyright>Copyright @ SPT 2026</Copyright>
+        <!--
         Build version; pass -p:SPTushonkaVersion=x.y.z
-        Stamps FileVersion/AssemblyVersion.
+        Stamps FileVersion/AssemblyVersion and PluginInfo.Version, which the BepInPlugin attributes carry.
     -->
-    <SPTushonkaVersion Condition="'$(SPTushonkaVersion)' == ''">5.0.0</SPTushonkaVersion>
-    <FileVersion>$(SPTushonkaVersion)</FileVersion>
-    <AssemblyVersion>$(SPTushonkaVersion)</AssemblyVersion>
-    <InformationalVersion>$(SPTushonkaVersion)</InformationalVersion>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <GameDir Condition="'$(GameDir)' == ''">D:/SPT-5.0.0/DEV</GameDir>
-    <BepInExCore>$(GameDir)/BepInEx/core</BepInExCore>
-    <Interop>$(GameDir)/BepInEx/interop</Interop>
-  </PropertyGroup>
+        <SPTushonkaVersion Condition="'$(SPTushonkaVersion)' == ''">5.0.0</SPTushonkaVersion>
+        <FileVersion>$(SPTushonkaVersion)</FileVersion>
+        <AssemblyVersion>$(SPTushonkaVersion)</AssemblyVersion>
+        <InformationalVersion>$(SPTushonkaVersion)</InformationalVersion>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <GameDir Condition="'$(GameDir)' == ''">D:/SPT-5.0.0/DEV</GameDir>
+        <BepInExCore>$(GameDir)/BepInEx/core</BepInExCore>
+        <Interop>$(GameDir)/BepInEx/interop</Interop>
+    </PropertyGroup>
 
-  <!-- Referenced straight out of the install; nothing is redistributed. -->
-  <ItemGroup>
-    <Reference Include="BepInEx.Core"><HintPath>$(BepInExCore)/BepInEx.Core.dll</HintPath><Private>false</Private></Reference>
-    <Reference Include="BepInEx.Unity.IL2CPP"><HintPath>$(BepInExCore)/BepInEx.Unity.IL2CPP.dll</HintPath><Private>false</Private></Reference>
-    <Reference Include="0Harmony"><HintPath>$(BepInExCore)/0Harmony.dll</HintPath><Private>false</Private></Reference>
-    <Reference Include="Il2CppInterop.Runtime"><HintPath>$(BepInExCore)/Il2CppInterop.Runtime.dll</HintPath><Private>false</Private></Reference>
-    <Reference Include="Il2Cppmscorlib"><HintPath>$(Interop)/Il2Cppmscorlib.dll</HintPath><Private>false</Private></Reference>
-    <Reference Include="UnityEngine.UnityWebRequestTextureModule"><HintPath>$(Interop)/UnityEngine.UnityWebRequestTextureModule.dll</HintPath><Private>false</Private></Reference>
-    <Reference Include="UnityEngine.AssetBundleModule"><HintPath>$(Interop)/UnityEngine.AssetBundleModule.dll</HintPath><Private>false</Private></Reference>
-    <Reference Include="Diz.Resources"><HintPath>$(Interop)/Diz.Resources.dll</HintPath><Private>false</Private></Reference>
-    <Reference Include="Diz.Binding"><HintPath>$(Interop)/Diz.Binding.dll</HintPath><Private>false</Private></Reference>
-    <Reference Include="Unity.ScriptableBuildPipeline"><HintPath>$(Interop)/Unity.ScriptableBuildPipeline.dll</HintPath><Private>false</Private></Reference>
-    <Reference Include="DependencyManager"><HintPath>$(Interop)/DependencyManager.dll</HintPath><Private>false</Private></Reference>
-    <Reference Include="Sirenix.Serialization"><HintPath>$(Interop)/Sirenix.Serialization.dll</HintPath><Private>false</Private></Reference>
-    <Reference Include="UnityEngine.UI"><HintPath>$(Interop)/UnityEngine.UI.dll</HintPath><Private>false</Private></Reference>
-    <Reference Include="Vuplex.WebView"><HintPath>$(Interop)/Vuplex.WebView.dll</HintPath><Private>false</Private></Reference>
-    <Reference Include="Sirenix.OdinInspector.Attributes"><HintPath>$(Interop)/Sirenix.OdinInspector.Attributes.dll</HintPath><Private>false</Private></Reference>
-    <Reference Include="Il2CppSystem"><HintPath>$(Interop)/Il2CppSystem.dll</HintPath><Private>false</Private></Reference>
-    <Reference Include="UnityEngine.UnityWebRequestModule"><HintPath>$(Interop)/UnityEngine.UnityWebRequestModule.dll</HintPath><Private>false</Private></Reference>
-    <Reference Include="UnityEngine.ImageConversionModule"><HintPath>$(Interop)/UnityEngine.ImageConversionModule.dll</HintPath><Private>false</Private></Reference>
-    <Reference Include="Assembly-CSharp"><HintPath>$(Interop)/Assembly-CSharp.dll</HintPath><Private>false</Private></Reference>
-    <Reference Include="Assembly-CSharp-firstpass"><HintPath>$(Interop)/Assembly-CSharp-firstpass.dll</HintPath><Private>false</Private></Reference>
-    <Reference Include="FilesChecker"><HintPath>$(Interop)/FilesChecker.dll</HintPath><Private>false</Private></Reference>
-    <Reference Include="CoreServices"><HintPath>$(Interop)/CoreServices.dll</HintPath><Private>false</Private></Reference>
-    <Reference Include="Comfort"><HintPath>$(Interop)/Comfort.dll</HintPath><Private>false</Private></Reference>
-    <Reference Include="GlobalEvents"><HintPath>$(Interop)/GlobalEvents.dll</HintPath><Private>false</Private></Reference>
-    <Reference Include="UnityEngine.PhysicsModule"><HintPath>$(Interop)/UnityEngine.PhysicsModule.dll</HintPath><Private>false</Private></Reference>
-    <Reference Include="bsg.console.core"><HintPath>$(Interop)/bsg.console.core.dll</HintPath><Private>false</Private></Reference>
-    <Reference Include="UnityEngine.InputLegacyModule"><HintPath>$(Interop)/UnityEngine.InputLegacyModule.dll</HintPath><Private>false</Private></Reference>
-    <Reference Include="Il2CppSystem.Core"><HintPath>$(Interop)/Il2CppSystem.Core.dll</HintPath><Private>false</Private></Reference>
-    <Reference Include="UnityEngine.CoreModule"><HintPath>$(Interop)/UnityEngine.CoreModule.dll</HintPath><Private>false</Private></Reference>
-  </ItemGroup>
+    <!-- Referenced straight out of the install; nothing is redistributed. -->
+    <ItemGroup>
+        <Reference Include="BepInEx.Core">
+            <HintPath>$(BepInExCore)/BepInEx.Core.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="BepInEx.Unity.IL2CPP">
+            <HintPath>$(BepInExCore)/BepInEx.Unity.IL2CPP.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="0Harmony">
+            <HintPath>$(BepInExCore)/0Harmony.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Il2CppInterop.Runtime">
+            <HintPath>$(BepInExCore)/Il2CppInterop.Runtime.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Il2Cppmscorlib">
+            <HintPath>$(Interop)/Il2Cppmscorlib.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine.UnityWebRequestTextureModule">
+            <HintPath>$(Interop)/UnityEngine.UnityWebRequestTextureModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine.AssetBundleModule">
+            <HintPath>$(Interop)/UnityEngine.AssetBundleModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Diz.Resources">
+            <HintPath>$(Interop)/Diz.Resources.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Diz.Binding">
+            <HintPath>$(Interop)/Diz.Binding.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Unity.ScriptableBuildPipeline">
+            <HintPath>$(Interop)/Unity.ScriptableBuildPipeline.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="DependencyManager">
+            <HintPath>$(Interop)/DependencyManager.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Sirenix.Serialization">
+            <HintPath>$(Interop)/Sirenix.Serialization.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine.UI">
+            <HintPath>$(Interop)/UnityEngine.UI.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Vuplex.WebView">
+            <HintPath>$(Interop)/Vuplex.WebView.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Sirenix.OdinInspector.Attributes">
+            <HintPath>$(Interop)/Sirenix.OdinInspector.Attributes.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Il2CppSystem">
+            <HintPath>$(Interop)/Il2CppSystem.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine.UnityWebRequestModule">
+            <HintPath>$(Interop)/UnityEngine.UnityWebRequestModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine.ImageConversionModule">
+            <HintPath>$(Interop)/UnityEngine.ImageConversionModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Assembly-CSharp">
+            <HintPath>$(Interop)/Assembly-CSharp.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Assembly-CSharp-firstpass">
+            <HintPath>$(Interop)/Assembly-CSharp-firstpass.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="FilesChecker">
+            <HintPath>$(Interop)/FilesChecker.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="CoreServices">
+            <HintPath>$(Interop)/CoreServices.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Comfort">
+            <HintPath>$(Interop)/Comfort.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="GlobalEvents">
+            <HintPath>$(Interop)/GlobalEvents.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine.PhysicsModule">
+            <HintPath>$(Interop)/UnityEngine.PhysicsModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="bsg.console.core">
+            <HintPath>$(Interop)/bsg.console.core.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine.InputLegacyModule">
+            <HintPath>$(Interop)/UnityEngine.InputLegacyModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="Il2CppSystem.Core">
+            <HintPath>$(Interop)/Il2CppSystem.Core.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+        <Reference Include="UnityEngine.CoreModule">
+            <HintPath>$(Interop)/UnityEngine.CoreModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
+    </ItemGroup>
+
+    <!-- Stamp each plugin version without needing a direct reference from one to all of them -->
+    <Target Name="GeneratePluginInfo" BeforeTargets="BeforeCompile;CoreCompile">
+        <PropertyGroup>
+            <PluginInfoPath>$(IntermediateOutputPath)PluginInfo.cs</PluginInfoPath>
+            <PluginInfoText>
+// Generated by Directory.Build.props from SPTushonkaVersion. Do not edit.
+namespace SPTushonka
+{
+    public static class PluginInfo
+    {
+        public const string Version = "$(SPTushonkaVersion)"%3B
+    }
+}
+      </PluginInfoText>
+        </PropertyGroup>
+        <ItemGroup>
+            <Compile Include="$(PluginInfoPath)" />
+            <FileWrites Include="$(PluginInfoPath)" />
+        </ItemGroup>
+        <WriteLinesToFile Lines="$(PluginInfoText)" File="$(PluginInfoPath)" Overwrite="true" WriteOnlyWhenDifferent="true" />
+    </Target>
 </Project>
