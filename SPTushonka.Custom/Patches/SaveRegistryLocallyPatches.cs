@@ -47,7 +47,7 @@ public sealed class SaveRegistryLocallyPatches
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate void VoidDelegate();
 
-    public void Enable()
+    public static void Enable()
     {
         Init();
 

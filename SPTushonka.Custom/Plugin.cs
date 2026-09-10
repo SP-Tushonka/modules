@@ -1,6 +1,8 @@
 ﻿using System;
 using BepInEx;
 using BepInEx.Unity.IL2CPP;
+using EFT.Settings;
+using Il2CppInterop.Runtime;
 using SPTushonka.Custom.Patches;
 using SPTushonka.Custom.Utils;
 
@@ -11,13 +13,24 @@ namespace SPTushonka.Custom;
 [BepInPlugin("sptushonka.custom", "SPTushonka Custom", PluginInfo.Version)]
 public class Plugin : BasePlugin
 {
-    // The item icon cache is a static path set once in the type initialiser, so it only needs
-    // overwriting before the first icon is rendered. Same folder as the redirected images.
+    // Redirect the game's icon cache to the SPT_Runtime directory
     private static void RedirectIconCache()
     {
         var path = System.IO.Path.Combine(Environment.CurrentDirectory, "SPT_Runtime", "user", "sptappdata");
         System.IO.Directory.CreateDirectory(path);
         ItemIconCache.Path = path;
+    }
+
+    // Redirect the game's settings folder to the SPT_Runtime directory
+    private void RedirectSettingsFolder()
+    {
+        var path = System.IO.Path.Combine(Environment.CurrentDirectory, "SPT_Runtime", "user", "sptSettings");
+        System.IO.Directory.CreateDirectory(path);
+        IL2CPP.il2cpp_runtime_class_init(Il2CppClassPointerStore<SettingsManager>.NativeClassPtr);
+        SettingsManager.OldSettingsFolderPath = path;
+        SettingsManager.SettingsFolderPath = path;
+
+        Log.LogInfo($"settings: folder set to {SettingsManager.SettingsFolderPath}");
     }
 
     public override void Load()
@@ -35,9 +48,9 @@ public class Plugin : BasePlugin
 
         new VersionLabelPatch().Enable();
         new PreloaderVersionLabelPatch().Enable();
-        new SaveSettingsLocallyPatch().Enable();
+        RedirectSettingsFolder();
         RedirectIconCache();
-        new SaveRegistryLocallyPatches().Enable();
+        SaveRegistryLocallyPatches.Enable();
         new RedirectClientImageRequestsPatch().Enable();
         new EnablePrestigeTabPatch().Enable();
         new LoadPrestigeSettingsPatch().Enable();
