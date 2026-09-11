@@ -57,6 +57,7 @@ public class SPTushonkaPrePatcher : BasePatcher
 
             Log.LogInfo($"abi: il2cpp domain lists {assemblies} assemblies, System.Type has {methods} methods, op_Equality at 0x{opEquality.ToInt64():X}");
             InteropCorrections.Install(Log, pe, gameAssembly.BaseAddress);
+            ValueArgumentFix.Install(Log);
         }
         catch (Exception ex)
         {
