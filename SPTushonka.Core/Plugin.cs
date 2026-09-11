@@ -17,7 +17,7 @@ public class Plugin : BasePlugin
         ClassInjector.RegisterTypeInIl2Cpp<FakeCertificateHandler>();
 
         new BattlEyePatch().Enable();
-        FilesCheckerStubs.Apply(Log);
+        FilesCheckerPatches.Patch();
         new ValidateAnticheatPatch().Enable();
         new SslCertificatePatch().Enable();
         new UnityWebRequestPatch().Enable();
