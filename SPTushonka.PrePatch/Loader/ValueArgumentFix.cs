@@ -33,7 +33,7 @@ internal static class ValueArgumentFix
 
         new Harmony("sptushonka.abi.valueargs").Patch(target,
             transpiler: new HarmonyMethod(typeof(ValueArgumentFix).GetMethod(nameof(Transpile), BindingFlags.NonPublic | BindingFlags.Static)));
-        log.LogMessage("valueargs: corrected both Windows x64 value-argument boxing branches (1/2/4/8 bytes direct)");
+        log.LogMessage("valueargs: corrected Windows x64 value boxing (1/2/4/8 bytes direct); boxed Enum arguments stay references");
     }
 
     private static IEnumerable<CodeInstruction> Transpile(IEnumerable<CodeInstruction> instructions)
@@ -46,11 +46,24 @@ internal static class ValueArgumentFix
             throw new InvalidOperationException("valueargs: expected exactly two stock boxing branches");
         }
 
+        // System.Enum inherits ValueType, but a parameter declared as Enum is
+        // an object reference, not an unboxed concrete enum. The stock emitter's
+        // IsSubclassOf(ValueType) check incorrectly sends it through value_box.
+        var isSubclassOf = typeof(Type).GetMethod(nameof(Type.IsSubclassOf), [typeof(Type)]);
+        var typeChecks = code.Where(instruction => instruction.Calls(isSubclassOf)).ToArray();
+        if (typeChecks.Length != 1)
+        {
+            throw new InvalidOperationException("valueargs: expected exactly one value-wrapper type check");
+        }
+
         // Validate both nullable and ordinary boxing paths before changing either.
         foreach (var branchStart in boxingBranches)
         {
             ValidateBoxingBranch(code, branchStart);
         }
+
+        typeChecks[0].opcode = OpCodes.Call;
+        typeChecks[0].operand = typeof(ValueArgumentFix).GetMethod(nameof(IsUnboxedValueWrapper), BindingFlags.NonPublic | BindingFlags.Static);
 
         var selectLoadOpcode = typeof(ValueArgumentFix).GetMethod(nameof(SelectBoxingLoadOpcode), BindingFlags.NonPublic | BindingFlags.Static);
         foreach (var branchStart in boxingBranches)
@@ -71,6 +84,9 @@ internal static class ValueArgumentFix
         }
         return code;
     }
+
+    private static bool IsUnboxedValueWrapper(Type argumentType, Type baseType) =>
+        argumentType != typeof(Il2CppSystem.Enum) && argumentType.IsSubclassOf(baseType);
 
     private static void ValidateBoxingBranch(List<CodeInstruction> code, int branchStart)
     {
