@@ -22,7 +22,7 @@ public static class GodModeCommand
     private static bool IsMainPlayer(ActiveHealthController controller)
     {
         var player = Singleton<GameWorld>.Instance?.MainPlayer;
-        return player != null && player.ActiveHealthController != null && player.ActiveHealthController.Pointer == controller.Pointer;
+        return player != null && player.ActiveHealthController == controller;
     }
 
     public static void Toggle()

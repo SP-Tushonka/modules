@@ -138,6 +138,10 @@
             <HintPath>$(Interop)/UnityEngine.CoreModule.dll</HintPath>
             <Private>false</Private>
         </Reference>
+        <Reference Include="DissonanceVoip">
+            <HintPath>$(Interop)/DissonanceVoip.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
     </ItemGroup>
 
     <!-- Stamp each plugin version without needing a direct reference from one to all of them -->

@@ -17,7 +17,7 @@ public static class DebugExtractCommand
             return;
         }
 
-        var game = Singleton<AbstractGame>.Instantiated ? Singleton<AbstractGame>.Instance.TryCast<LocalGame>() : null;
+        var game = Singleton<AbstractGame>.Instantiated ? Singleton<AbstractGame>.Instance as LocalGame : null;
         var world = Singleton<GameWorld>.Instance;
         if (game == null || world == null || world.MainPlayer == null)
         {

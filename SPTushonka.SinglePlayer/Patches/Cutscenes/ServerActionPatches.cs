@@ -48,8 +48,7 @@ public static class ServerActionPatches
                     return;
                 }
 
-                var exit = action.TryCast<CutsceneActionExitAfterCutscene>();
-                if (exit != null)
+                if (action is CutsceneActionExitAfterCutscene exit)
                 {
                     StopRaid(exit.ExitStatus);
                 }
@@ -79,7 +78,7 @@ public static class ServerActionPatches
 
         var status = _pendingStop.Value;
         _pendingStop = null;
-        var game = Singleton<AbstractGame>.Instance?.TryCast<LocalGame>();
+        var game = Singleton<AbstractGame>.Instance as LocalGame;
         var player = Singleton<GameWorld>.Instance?.MainPlayer;
         if (game != null && player != null && game.Status == GameStatus.Started)
         {
@@ -118,18 +117,18 @@ public static class ServerActionPatches
 
         private static void Emulate(CutsceneBaseAction action, Il2CppSystem.Collections.Generic.List<int> playersId)
         {
-            switch (action.GetIl2CppType().Name)
+            switch (action)
             {
-                case nameof(CutsceneActionChangeBotActiveState):
+                case CutsceneActionChangeBotActiveState botState:
                 {
-                    var state = action.TryCast<CutsceneActionChangeBotActiveState>().BotActiveState;
+                    var state = botState.BotActiveState;
                     new CutSceneChangeBotState { IsActive = state }.Invoke();
                     Logger.LogInfo($"server action: bots {(state ? "activated" : "deactivated")}");
                     break;
                 }
-                case nameof(CutsceneActionInitTimerToCutscene):
+                case CutsceneActionInitTimerToCutscene initTimer:
                 {
-                    var timer = action.TryCast<CutsceneActionInitTimerToCutscene>().startCutsceneByTimer;
+                    var timer = initTimer.startCutsceneByTimer;
                     if (timer != null)
                     {
                         timer.StartTimer();
@@ -138,9 +137,9 @@ public static class ServerActionPatches
 
                     break;
                 }
-                case nameof(CutsceneActionActivateStateTimer):
+                case CutsceneActionActivateStateTimer activateTimer:
                 {
-                    var timer = action.TryCast<CutsceneActionActivateStateTimer>().stateTimer;
+                    var timer = activateTimer.stateTimer;
                     if (timer != null)
                     {
                         var now = Time.time;
@@ -155,9 +154,9 @@ public static class ServerActionPatches
 
                     break;
                 }
-                case nameof(CutsceneActionsActivateLamp):
+                case CutsceneActionsActivateLamp lamp:
                 {
-                    var ids = action.TryCast<CutsceneActionsActivateLamp>().triggersId;
+                    var ids = lamp.triggersId;
                     var emitter = TriggersEmitter.Instance;
                     for (var i = 0; ids != null && emitter != null && i < ids.Count; i++)
                     {
@@ -167,11 +166,11 @@ public static class ServerActionPatches
                     Logger.LogInfo($"server action: lamps via {(ids == null ? 0 : ids.Count)} trigger(s)");
                     break;
                 }
-                case nameof(CutsceneActionOpenDoors):
+                case CutsceneActionOpenDoors doors:
                 {
                     // The client side of this action only shows a notification. The door state
                     // itself comes from the dedicated server's door sync.
-                    var ids = action.TryCast<CutsceneActionOpenDoors>().doorsId;
+                    var ids = doors.doorsId;
                     var opened = 0;
                     foreach (var door in UnityEngine.Object.FindObjectsOfType<WorldInteractiveObject>(true))
                     {
@@ -193,9 +192,9 @@ public static class ServerActionPatches
                     Logger.LogInfo($"server action: {opened} of {(ids == null ? 0 : ids.Count)} door(s) opened");
                     break;
                 }
-                case nameof(CutsceneActionExitAfterCutscene):
+                case CutsceneActionExitAfterCutscene exit:
                 {
-                    var status = action.TryCast<CutsceneActionExitAfterCutscene>().ExitStatus;
+                    var status = exit.ExitStatus;
                     StopRaid(status);
                     break;
                 }

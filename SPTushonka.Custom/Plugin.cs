@@ -59,11 +59,6 @@ public class Plugin : BasePlugin
         BundlePathPatches.Patch();
         new ExpansionsOpenPatch().Enable();
 
-        if (AutoDeployPatches.Enabled)
-        {
-            AutoDeployPatches.Patch();
-        }
-
         ModulePatch.Summarise("Custom");
     }
 }

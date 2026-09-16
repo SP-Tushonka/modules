@@ -43,6 +43,6 @@ public class LoadPrestigeSettingsPatch : ModulePatch
 
     private static GameModeDescriptor Descriptor(IEftSession session)
     {
-        return session?.TryCast<ClientBackendSession>()?._GameModeDescriptor_k__BackingField;
+        return (session as ClientBackendSession)?._GameModeDescriptor_k__BackingField;
     }
 }

@@ -5,7 +5,6 @@ using Comfort.Common;
 using EFT;
 using EFT.GameTriggers;
 using HarmonyLib;
-using Il2CppInterop.Runtime;
 using SPTushonka.Reflection.Patching;
 using UnityEngine;
 
@@ -33,7 +32,7 @@ public class TriggerCutscenePatches : ModulePatch
             return;
         }
 
-        var handler = DelegateSupport.ConvertDelegate<Il2CppSystem.Action<TriggerEvent>>(new Action<TriggerEvent>(_ => Start(cutsceneId)));
+        Il2CppSystem.Action<TriggerEvent> handler = new Action<TriggerEvent>(_ => Start(cutsceneId));
         emitter.Subscribe(triggerId, handler);
         Logger.LogInfo($"trigger cutscene: '{triggerId}' starts '{cutsceneId}'");
     }
@@ -78,7 +77,7 @@ public class QuestGatePatches : ModulePatch
 public static class RallyZonePatches
 {
     private static readonly List<TriggerRallyZone> _zones = new();
-    private static readonly HashSet<IntPtr> _emitted = new();
+    private static readonly HashSet<TriggerRallyZone> _emitted = new();
     private static int _frames;
 
     public static void Patch()
@@ -138,12 +137,12 @@ public static class RallyZonePatches
             {
                 foreach (var zone in _zones)
                 {
-                    if (zone == null || _emitted.Contains(zone.Pointer) || !zone._localPlayerInZone || string.IsNullOrEmpty(zone._triggerId))
+                    if (zone == null || _emitted.Contains(zone) || !zone._localPlayerInZone || string.IsNullOrEmpty(zone._triggerId))
                     {
                         continue;
                     }
 
-                    _emitted.Add(zone.Pointer);
+                    _emitted.Add(zone);
                     zone._wasTriggered = true;
                     world.TriggersEmitter.Emit(zone._triggerId, player.PlayerId);
                     Logger.LogInfo($"rally zone '{zone._triggerId}' emitted");

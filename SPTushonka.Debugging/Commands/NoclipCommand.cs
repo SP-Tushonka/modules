@@ -74,7 +74,7 @@ public static class NoclipCommand
         public static bool Prefix(ActiveHealthController __instance, ref float __result)
         {
             var player = Singleton<GameWorld>.Instance?.MainPlayer;
-            var mine = player != null && player.ActiveHealthController != null && player.ActiveHealthController.Pointer == __instance.Pointer;
+            var mine = player != null && player.ActiveHealthController == __instance;
             if (!mine || (!_enabled && !_skipLanding))
             {
                 return true;
@@ -97,7 +97,7 @@ public static class NoclipCommand
         public static bool Prefix(Player __instance)
         {
             var player = Singleton<GameWorld>.Instance?.MainPlayer;
-            if (player == null || player.Pointer != __instance.Pointer || (!_enabled && !_skipLanding))
+            if (player == null || player != __instance || (!_enabled && !_skipLanding))
             {
                 return true;
             }
@@ -125,7 +125,7 @@ public static class NoclipCommand
             try
             {
                 var player = Singleton<GameWorld>.Instance?.MainPlayer;
-                if (player == null || player.Pointer != __instance.Pointer || player.CameraPosition == null)
+                if (player == null || player != __instance || player.CameraPosition == null)
                 {
                     return;
                 }

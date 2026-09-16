@@ -6,9 +6,6 @@ using Il2CppInterop.Runtime.Runtime;
 
 namespace SPTushonka.Core.Patches;
 
-// The per file checks are void methods whose native bodies are replaced with ret. A Harmony
-// detour on ConsistencyController crashes inside the trampoline, its methods take a
-// CancellationToken by value.
 public static class FilesCheckerStubs
 {
     private const uint PageExecuteReadWrite = 0x40;

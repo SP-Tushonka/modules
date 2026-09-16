@@ -2,7 +2,6 @@ using System;
 using System.Reflection;
 using EFT.UI;
 using HarmonyLib;
-using Il2CppInterop.Runtime;
 using SPTushonka.Debugging.Scripts;
 using SPTushonka.Reflection.Patching;
 
@@ -37,6 +36,6 @@ public class ConsoleCommands : ModulePatch
 
     private static void Register(string name, string description, Action handler)
     {
-        ConsoleScreen.Processor.RegisterCommand(name, DelegateSupport.ConvertDelegate<Il2CppSystem.Action>(handler), description);
+        ConsoleScreen.Processor.RegisterCommand(name, handler, description);
     }
 }

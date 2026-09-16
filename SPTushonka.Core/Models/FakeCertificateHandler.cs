@@ -11,6 +11,7 @@ public class FakeCertificateHandler : CertificateHandler
     public FakeCertificateHandler(IntPtr pointer) : base(pointer)
     {
         ClassInjector.DerivedConstructorBody(this);
+        ClassInjector.InvokeBaseConstructor<CertificateHandler>(this);
     }
 
     public override bool ValidateCertificate(Il2CppStructArray<byte> certificateData)

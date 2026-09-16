@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using CommonAssets.Scripts.Cutscenes;
 using EFT;
@@ -164,7 +165,7 @@ public static class FinalMissionDirectorPatches
             }
 
             // The exit only matters once the attack cutscene has run.
-            var inCutscene = server.CheckPlayerInCutscene(_world.MainPlayer.Cast<IPlayer>(), out var current);
+            var inCutscene = server.CheckPlayerInCutscene(_world.MainPlayer, out var current);
             if (!_timerCutsceneSeen)
             {
                 if (inCutscene && current != null && current.currentCutsceneId == _timerCutsceneId)
@@ -248,8 +249,7 @@ public static class FinalMissionDirectorPatches
         private static bool HasItem(Player player, string templateId)
         {
             var items = player.Profile.Inventory.GetAllItemByTemplate(templateId);
-            var enumerator = items == null ? null : items.GetEnumerator().TryCast<Il2CppSystem.Collections.IEnumerator>();
-            return enumerator != null && enumerator.MoveNext();
+            return items != null && items.Any();
         }
 
         private static bool HasRequiredItems(Player player)

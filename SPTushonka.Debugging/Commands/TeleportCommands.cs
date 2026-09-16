@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Comfort.Common;
 using EFT;
 using EFT.GameTriggers;
@@ -23,15 +24,15 @@ public static class TeleportCommands
         Register("tpcontainer", "Teleport to a container by its template, name, or an item template inside it", ToContainer);
         Register("tpbot", "Teleport next to a living bot by role or nickname", ToBot);
         Register("trigger", "Fire a game trigger by id as the main player", FireTrigger);
-        ConsoleScreen.Processor.RegisterCommand("zones", DelegateSupport.ConvertDelegate<Il2CppSystem.Action>(new Action(() => ReportZones(""))), "Report every rally zone and whether the player is inside it");
-        ConsoleScreen.Processor.RegisterCommand("tprally", DelegateSupport.ConvertDelegate<Il2CppSystem.Action>(new Action(ToRally)), "Teleport into the first rally zone collider");
+        ConsoleScreen.Processor.RegisterCommand("zones", new Action(() => ReportZones("")), "Report every rally zone and whether the player is inside it");
+        ConsoleScreen.Processor.RegisterCommand("tprally", new Action(ToRally), "Teleport into the first rally zone collider");
     }
 
     internal static void Register(string name, string description, Action<string> handler)
     {
         var arguments = new Il2CppReferenceArray<Il2CppSystem.Type>(new[] { Il2CppType.Of<string>() });
-        var call = DelegateSupport.ConvertDelegate<Il2CppSystem.Action<Il2CppReferenceArray<Il2CppSystem.Object>>>(
-            new Action<Il2CppReferenceArray<Il2CppSystem.Object>>(args => handler(args == null || args.Length == 0 || args[0] == null ? "" : args[0].ToString())));
+        Il2CppSystem.Action<Il2CppReferenceArray<Il2CppSystem.Object>> call =
+            new Action<Il2CppReferenceArray<Il2CppSystem.Object>>(args => handler(args == null || args.Length == 0 || args[0] == null ? "" : args[0].ToString()));
         ConsoleScreen.Processor.RegisterAnonymousCommand(name, arguments, call, description);
     }
 
@@ -96,7 +97,7 @@ public static class TeleportCommands
         for (var i = 0; players != null && i < players.Count; i++)
         {
             var bot = players[i];
-            if (bot == null || bot.Pointer == world.MainPlayer.Pointer)
+            if (bot == null || bot == world.MainPlayer)
             {
                 continue;
             }
@@ -136,18 +137,8 @@ public static class TeleportCommands
     private static bool Holds(LootableContainer container, string text)
     {
         var root = container.ItemOwner == null ? null : container.ItemOwner.RootItem;
-        var items = root == null ? null : ItemExtensions.GetAllItems(root);
-        var enumerator = items == null ? null : items.GetEnumerator().TryCast<Il2CppSystem.Collections.IEnumerator>();
-        while (enumerator != null && enumerator.MoveNext())
-        {
-            var item = enumerator.Current.TryCast<EFT.InventoryLogic.Item>();
-            if (item != null && item.TemplateId.ToString().StartsWith(text, StringComparison.OrdinalIgnoreCase))
-            {
-                return true;
-            }
-        }
-
-        return false;
+        var items = root == null ? null : root.GetAllItems();
+        return items != null && items.Any(item => item != null && item.TemplateId.ToString().StartsWith(text, StringComparison.OrdinalIgnoreCase));
     }
 
     private static void ToContainer(string text)
@@ -190,9 +181,7 @@ public static class TeleportCommands
 
         // Quest items live in their own set. The world list holds the rest of the loose loot.
         var quest = world.QuestItemsList;
-        var questItems = new Il2CppReferenceArray<LootItem>(quest == null ? 0 : quest.Count);
-        quest?.CopyTo(questItems);
-        foreach (var loot in questItems)
+        foreach (var loot in quest ?? Enumerable.Empty<LootItem>())
         {
             if (Matches(loot, text))
             {
@@ -241,17 +230,8 @@ public static class TeleportCommands
         }
 
         var emitter = world.TriggersEmitter;
-        var ignored = new System.Collections.Generic.List<string>();
         var ignoreSet = emitter == null ? null : emitter._ignoreTriggers;
-        if (ignoreSet != null)
-        {
-            var copy = new Il2CppStringArray(ignoreSet.Count);
-            ignoreSet.CopyTo(copy);
-            foreach (var id in copy)
-            {
-                ignored.Add(id);
-            }
-        }
+        var ignored = ignoreSet == null ? new System.Collections.Generic.List<string>() : ignoreSet.ToList();
 
         ConsoleScreen.Log($"world {world.GetIl2CppType().Name}, emitter {(emitter == null ? "none" : emitter.GetIl2CppType().Name)}, ignored triggers: {(ignored.Count == 0 ? "none" : string.Join(", ", ignored))}");
         foreach (var zone in UnityEngine.Object.FindObjectsOfType<TriggerRallyZone>(true))
@@ -330,13 +310,6 @@ public static class TeleportCommands
 
     private static string Join(Il2CppSystem.Collections.Generic.IEnumerable<string> ids)
     {
-        var parts = new System.Collections.Generic.List<string>();
-        var enumerator = ids == null ? null : ids.GetEnumerator().TryCast<Il2CppSystem.Collections.IEnumerator>();
-        while (enumerator != null && enumerator.MoveNext())
-        {
-            parts.Add(enumerator.Current?.ToString() ?? "");
-        }
-
-        return string.Join(", ", parts);
+        return ids == null ? "" : string.Join(", ", ids);
     }
 }
