@@ -56,7 +56,7 @@ public class Plugin : BasePlugin
         new LoadPrestigeSettingsPatch().Enable();
         new SetPreRaidSettingsScreenDefaultsPatch().Enable();
         new BundleManifestPatch().Enable();
-        BundlePathPatches.Patch();
+        new EasyBundlePathPatch().Enable();
         new ExpansionsOpenPatch().Enable();
 
         ModulePatch.Summarise("Custom");
