@@ -13,13 +13,6 @@ namespace SPTushonka.SinglePlayer.Patches.MainMenu;
 /// </summary>
 public static class ReadyButtonPatches
 {
-    public static void Patch()
-    {
-        new DisableReadyLocationReadyPatch().Enable();
-        new DisableMatchmakerOfflineRaidReadyPatch().Enable();
-        new DisableMatchmakerInsuranceReadyPatch().Enable();
-    }
-
     /// <summary>
     /// Disables the ready button from select location screen,
     /// easier to disable the button than fix problems caused by clicking it

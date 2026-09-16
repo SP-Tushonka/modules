@@ -10,12 +10,6 @@ namespace SPTushonka.SinglePlayer.Patches.Cutscenes;
 // server's fixed clock ran at double speed. Only the first update in a frame is let through.
 public static class CutsceneUpdateGuardPatches
 {
-    public static void Patch()
-    {
-        new ServerPatch().Enable();
-        new ClientPatch().Enable();
-    }
-
     public class ServerPatch : ModulePatch
     {
         private static int _lastFrame = -1;

@@ -12,12 +12,6 @@ namespace SPTushonka.SinglePlayer.Patches.MainMenu;
 /// </summary>
 public static class ForceRaidModeToLocalPatches
 {
-    public static void Patch()
-    {
-        new OnMatchingPatch().Enable();
-        new OnGamePreparePatch().Enable();
-    }
-
     private static void ForceLocal(TarkovApplication application)
     {
         var raidSettings = application._raidSettings;

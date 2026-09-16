@@ -12,12 +12,6 @@ namespace SPTushonka.Core.Patches;
 // the static one is the native entry point and may have the instance one inlined into it.
 public static class UnityTlsVerifyPatches
 {
-    public static void Patch()
-    {
-        new StaticVerifyCallbackPatch().Enable();
-        new InstanceVerifyCallbackPatch().Enable();
-    }
-
     public class StaticVerifyCallbackPatch : ModulePatch
     {
         protected override MethodBase GetTargetMethod()

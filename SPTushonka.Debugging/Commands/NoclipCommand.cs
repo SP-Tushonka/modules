@@ -32,13 +32,6 @@ public static class NoclipCommand
     private static bool _skipLanding;
     private static Vector3 _position;
 
-    public static void Patch()
-    {
-        new LateUpdatePatch().Enable();
-        new LandingPatch().Enable();
-        new FallDamagePatch().Enable();
-    }
-
     public static void MoveTo(Vector3 position)
     {
         _position = position;

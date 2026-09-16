@@ -13,12 +13,6 @@ public static class GodModeCommand
 {
     private static bool Enabled;
 
-    public static void Patch()
-    {
-        new DamagePatch().Enable();
-        new KillPatch().Enable();
-    }
-
     private static bool IsMainPlayer(ActiveHealthController controller)
     {
         var player = Singleton<GameWorld>.Instance?.MainPlayer;

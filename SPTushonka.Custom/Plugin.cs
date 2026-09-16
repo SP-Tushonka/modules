@@ -46,18 +46,11 @@ public class Plugin : BasePlugin
             Log.LogError($"could not read the server bundle manifest: {ex.Message}");
         }
 
-        new VersionLabelPatch().Enable();
-        new PreloaderVersionLabelPatch().Enable();
         RedirectSettingsFolder();
         RedirectIconCache();
         SaveRegistryLocallyPatches.Enable();
-        new RedirectClientImageRequestsPatch().Enable();
-        new EnablePrestigeTabPatch().Enable();
-        new LoadPrestigeSettingsPatch().Enable();
-        new SetPreRaidSettingsScreenDefaultsPatch().Enable();
-        new BundleManifestPatch().Enable();
-        new EasyBundlePathPatch().Enable();
-        new ExpansionsOpenPatch().Enable();
+
+        new PatchManager(this, true).EnablePatches();
 
         ModulePatch.Summarise("Custom");
     }

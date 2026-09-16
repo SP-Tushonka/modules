@@ -14,12 +14,6 @@ public static class BlackScreenShowPatch
 {
     private static bool _skipping;
 
-    public static void Patch()
-    {
-        new SkipPatch().Enable();
-        new ShowPatch().Enable();
-    }
-
     public class SkipPatch : ModulePatch
     {
         protected override MethodBase GetTargetMethod()

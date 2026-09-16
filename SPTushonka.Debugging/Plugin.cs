@@ -1,8 +1,6 @@
 using BepInEx;
 using BepInEx.Unity.IL2CPP;
 using Il2CppInterop.Runtime.Injection;
-using SPTushonka.Debugging.Commands;
-using SPTushonka.Debugging.Patches;
 using SPTushonka.Debugging.Scripts;
 using SPTushonka.Reflection.Patching;
 
@@ -15,10 +13,7 @@ public class Plugin : BasePlugin
     {
         ClassInjector.RegisterTypeInIl2Cpp<BotMonitor>();
 
-        new ConsoleCommands().Enable();
-        new BsgLogPatch().Enable();
-        GodModeCommand.Patch();
-        NoclipCommand.Patch();
+        new PatchManager(this, true).EnablePatches();
 
         ModulePatch.Summarise("Debugging");
     }

@@ -1,10 +1,12 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System;
 using CommonAssets.Scripts.Cutscenes;
-using EFT;
+using Diz.LanguageExtensions;
 using EFT.Interactive;
+using EFT.InventoryLogic;
+using EFT;
 using HarmonyLib;
 using SPTushonka.Reflection.Patching;
 using UnityEngine;
@@ -27,23 +29,36 @@ public static class FinalMissionDirectorPatches
     // The key to the pier gate is the last thing the map hands out before the boat.
     private const string PierDoorKey = "6866adbe09b973bf45094339";
 
+    // Used only when the scene's own list cannot be read.
+    private static readonly string[] FallbackKeptSlots =
+    [
+        "Dogtag",
+        "SecuredContainer",
+        "FaceCover",
+        "Eyewear",
+        "TacticalVest",
+        "ArmBand",
+        "ArmorVest",
+    ];
+
+    private const float PendingTimeoutSeconds = 10f;
+
+    private static readonly List<Item> _pending = [];
+    private static PrivateLootableContainer _pendingContainer;
+    private static float _pendingUntil;
+    private static string _lastRefusal;
     private static GameWorld _world;
     private static MapTimelinesBank _bank;
     private static FinallExitZone _zone;
     private static string _timerCutsceneId;
     private static List<WorldInteractiveObject> _gates;
     private static int _frames;
+    private static bool _inventoryTaken;
     private static bool _introStarted;
     private static bool _timerCutsceneSeen;
     private static bool _zoneInitialised;
     private static bool _stateSent;
     private static bool _evacuated;
-
-    public static void Patch()
-    {
-        new StartPatch().Enable();
-        new TickPatch().Enable();
-    }
 
     private static void Reset()
     {
@@ -53,11 +68,14 @@ public static class FinalMissionDirectorPatches
         _timerCutsceneId = null;
         _gates = null;
         _frames = 0;
+        _inventoryTaken = false;
         _introStarted = false;
         _timerCutsceneSeen = false;
         _zoneInitialised = false;
         _stateSent = false;
         _evacuated = false;
+        _pending.Clear();
+        _pendingContainer = null;
     }
 
     public class StartPatch : ModulePatch
@@ -130,11 +148,28 @@ public static class FinalMissionDirectorPatches
             }
 
             _frames++;
+            if (_pending.Count > 0 && _frames % 30 == 0)
+            {
+                RetryPending();
+            }
+
             if (!_introStarted)
             {
                 // The controllers' own Init runs async after the game starts. Both must have found
                 // the bank before a cutscene can be handled on either side.
                 if (_frames < IntroDelayFrames || server._timelinesMapBank == null || client._timelinesMapBank == null)
+                {
+                    return;
+                }
+
+                if (!_inventoryTaken)
+                {
+                    _inventoryTaken = true;
+                    TakeAwayInventory(_world.MainPlayer);
+                }
+
+                // The intro takes the hands too, so the weapons have to be gone before it starts
+                if (_pending.Count > 0)
                 {
                     return;
                 }
@@ -180,6 +215,329 @@ public static class FinalMissionDirectorPatches
             {
                 ArmWhenGateOpens();
             }
+        }
+
+        // Live's take away picks a free private container, stamps it with the player's id and moves the
+        // gear in. The client's TryTakeAwayInventory is a stub, so the same steps run here.
+        private static void TakeAwayInventory(Player player)
+        {
+            var taker = UnityEngine.Object.FindObjectOfType<TakeInventoryFromConnectedPlayer>();
+            if (taker == null)
+            {
+                return;
+            }
+
+            var kept = KeptSlots(taker);
+            var controller = player.InventoryController;
+            var container = FreeContainer(taker);
+            if (container != null)
+            {
+                container.Init(player.PlayerId);
+                Uncover(container, controller);
+            }
+
+            var taken = new List<Item>();
+            var weapons = new List<Item>();
+            var equipment = player.Profile.Inventory.Equipment;
+            foreach (var name in InventoryEquipment.AllSlotNames)
+            {
+                if (kept.Contains(name.ToString()))
+                {
+                    continue;
+                }
+
+                var slot = equipment.GetSlot(name);
+                var item = slot == null ? null : slot.ContainedItem;
+                if (item == null)
+                {
+                    continue;
+                }
+
+                // The game reads the special slots off the pockets item every frame, so pockets are emptied instead
+                if (name == EquipmentSlot.Pockets)
+                {
+                    taken.AddRange(Contents(item));
+                    continue;
+                }
+
+                if (name == EquipmentSlot.FirstPrimaryWeapon || name == EquipmentSlot.SecondPrimaryWeapon || name == EquipmentSlot.Holster || name == EquipmentSlot.Scabbard)
+                {
+                    weapons.Add(item);
+                    continue;
+                }
+
+                taken.Add(item);
+            }
+
+            _pendingContainer = container;
+            var moved = 0;
+            var removed = 0;
+            foreach (var item in taken)
+            {
+                if (container != null && MoveInto(item, container, controller))
+                {
+                    moved++;
+                }
+                else if (Remove(item, controller))
+                {
+                    removed++;
+                }
+            }
+
+            _pending.AddRange(weapons);
+            
+            if (_pending.Count > 0)
+            {
+                _pendingUntil = Time.time + PendingTimeoutSeconds;
+                player.SetEmptyHands(null);
+            }
+
+            var target = container == null ? "no container" : container.Id;
+            Logger.LogInfo(
+                $"final mission: moved {moved} and removed {removed} item(s), into {target}, {_pending.Count} weapon(s) waiting for empty hands, kept {string.Join(", ", kept)}"
+            );
+        }
+
+        private static void RetryPending()
+        {
+            var player = _world.MainPlayer;
+            var controller = player.InventoryController;
+            var equipment = player.Profile.Inventory.Equipment;
+            for (var i = _pending.Count - 1; i >= 0; i--)
+            {
+                if (!OnPlayer(_pending[i], equipment))
+                {
+                    Logger.LogInfo($"final mission: took weapon '{_pending[i].TemplateId}'");
+                    _pending.RemoveAt(i);
+                }
+            }
+
+            if (_pending.Count == 0)
+            {
+                return;
+            }
+
+            if (Time.time > _pendingUntil)
+            {
+                foreach (var item in _pending)
+                {
+                    Logger.LogError($"final mission: could not take '{item.TemplateId}', left on the player, {_lastRefusal}");
+                }
+
+                _pending.Clear();
+                return;
+            }
+
+            if (player.ScheduledProcess != null)
+            {
+                _lastRefusal = "the hands were still changing";
+                return;
+            }
+
+            if (player.HandsController == null || player.HandsController.TryCast<Player.EmptyHandsController>() == null)
+            {
+                _lastRefusal = "the hands never emptied";
+                player.SetEmptyHands(null);
+                return;
+            }
+
+            var next = _pending[_pending.Count - 1];
+            if (_pendingContainer == null || !MoveInto(next, _pendingContainer, controller))
+            {
+                Remove(next, controller);
+            }
+        }
+
+        private static bool OnPlayer(Item item, InventoryEquipment equipment)
+        {
+            foreach (var name in InventoryEquipment.AllSlotNames)
+            {
+                var slot = equipment.GetSlot(name);
+                if (slot != null && slot.ContainedItem != null && slot.ContainedItem.Id == item.Id)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static void Uncover(PrivateLootableContainer container, InventoryController controller)
+        {
+            var root = container.ItemOwner.RootItem.TryCast<LootContainer>();
+            var search = ((Il2CppInterop.Runtime.InteropTypes.Il2CppObjectBase)controller.SearchController).TryCast<PlayerSearchController>();
+            if (root == null || search == null)
+            {
+                Logger.LogWarning($"final mission: could not uncover '{container.Id}' for the player");
+                return;
+            }
+
+            search.SetItemAsKnown(root, false);
+            search.SetItemAsSearched(root);
+        }
+
+        private static PrivateLootableContainer FreeContainer(TakeInventoryFromConnectedPlayer taker)
+        {
+            var chosen = taker.GetRandomFreeContainer();
+            if (chosen != null && chosen.ItemOwner != null)
+            {
+                return chosen;
+            }
+
+            var total = 0;
+            var free = 0;
+            var owned = 0;
+            PrivateLootableContainer fallback = null;
+            foreach (var container in taker.containers)
+            {
+                total++;
+                if (container == null || container.playerId != 0)
+                {
+                    continue;
+                }
+
+                free++;
+                if (container.ItemOwner == null)
+                {
+                    continue;
+                }
+
+                owned++;
+                if (fallback == null)
+                {
+                    fallback = container;
+                }
+            }
+
+            Logger.LogWarning($"final mission: {total} private container(s), {free} free, {owned} with an item owner");
+            return fallback;
+        }
+
+        private static List<Item> Contents(Item container)
+        {
+            var contents = new List<Item>();
+            var compound = container.TryCast<CompoundItem>();
+            if (compound == null)
+            {
+                return contents;
+            }
+
+            if (compound.Grids != null)
+            {
+                foreach (var grid in compound.Grids)
+                {
+                    foreach (var item in grid.Items)
+                    {
+                        contents.Add(item);
+                    }
+                }
+            }
+
+            if (compound.Slots != null)
+            {
+                foreach (var slot in compound.Slots)
+                {
+                    if (slot.ContainedItem != null)
+                    {
+                        contents.Add(slot.ContainedItem);
+                    }
+                }
+            }
+
+            return contents;
+        }
+
+        private static bool MoveInto(Item item, PrivateLootableContainer container, InventoryController controller)
+        {
+            var root = container.ItemOwner.RootItem.TryCast<CompoundItem>();
+            if (root == null || root.Grids == null)
+            {
+                _lastRefusal = "the container has no grid";
+                return false;
+            }
+
+            _lastRefusal = "no free space";
+            foreach (var grid in root.Grids)
+            {
+                var address = grid.FindLocationForItem(item);
+                if (address == null)
+                {
+                    continue;
+                }
+
+                var result = ItemManipulator.Move(item, address, controller, true);
+                if (result.Failed)
+                {
+                    _lastRefusal = result.Error == null ? "move refused" : result.Error.ToString();
+                    continue;
+                }
+
+                OperationResult operation = result;
+                if (!operation.Value.CanExecute(controller))
+                {
+                    _lastRefusal = "the controller cannot execute the move";
+                    continue;
+                }
+
+                controller.TryRunNetworkTransaction(operation, null);
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool Remove(Item item, InventoryController controller)
+        {
+            var result = ItemManipulator.Remove(item, controller, true);
+            if (result.Failed)
+            {
+                _lastRefusal = result.Error == null ? "removal refused" : result.Error.ToString();
+                return false;
+            }
+
+            OperationResult operation = result;
+            if (!operation.Value.CanExecute(controller))
+            {
+                _lastRefusal = "the controller cannot execute the removal";
+                return false;
+            }
+
+            controller.TryRunNetworkTransaction(operation, null);
+            return true;
+        }
+
+        private static HashSet<string> KeptSlots(TakeInventoryFromConnectedPlayer taker)
+        {
+            var kept = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            try
+            {
+                var listed = taker._slotsToIgnoreFirstPart;
+                if (listed != null)
+                {
+                    foreach (var slot in listed)
+                    {
+                        kept.Add(slot);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"final mission: could not read the scene's kept slots: {ex.Message}");
+            }
+
+            if (kept.Count > 0)
+            {
+                return kept;
+            }
+
+            Logger.LogWarning("final mission: the scene listed no slots to keep, using the known set");
+            foreach (var slot in FallbackKeptSlots)
+            {
+                kept.Add(slot);
+            }
+
+            return kept;
         }
 
         private static Il2CppSystem.Collections.Generic.List<int> HumanPlayerIds()

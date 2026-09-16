@@ -55,6 +55,7 @@ public class TriggerCutscenePatches : ModulePatch
 
 // Logs what a quest gate in the trigger chain asks for, so a cutscene that never starts can be
 // traced to the quest it wants.
+[IgnoreAutoPatch]
 public class QuestGatePatches : ModulePatch
 {
     protected override MethodBase GetTargetMethod()
@@ -86,6 +87,7 @@ public static class RallyZonePatches
         new TickPatch().Enable();
     }
 
+    [IgnoreAutoPatch]
     public class StartPatch : ModulePatch
     {
         protected override MethodBase GetTargetMethod()
@@ -111,6 +113,7 @@ public static class RallyZonePatches
         }
     }
 
+    [IgnoreAutoPatch]
     public class TickPatch : ModulePatch
     {
         protected override MethodBase GetTargetMethod()

@@ -22,13 +22,6 @@ public static class ServerActionPatches
 {
     private static readonly List<(float at, HandlerStateTimer timer, bool state)> PendingStates = new();
 
-    public static void Patch()
-    {
-        new InitActionPatch().Enable();
-        new ClientInitActionPatch().Enable();
-        new TickPatch().Enable();
-    }
-
     // The ending cutscenes play client only, so their end actions never reach the server side.
     // The exit action is handled here as well. Only the first stop counts either way.
     public class ClientInitActionPatch : ModulePatch
