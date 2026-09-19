@@ -3,6 +3,7 @@ using BepInEx;
 using BepInEx.Unity.IL2CPP;
 using EFT.Settings;
 using Il2CppInterop.Runtime;
+using SPTushonka.Custom.MemoryImprovements;
 using SPTushonka.Custom.Patches;
 using SPTushonka.Custom.Utils;
 
@@ -49,6 +50,7 @@ public class Plugin : BasePlugin
         RedirectSettingsFolder();
         RedirectIconCache();
         SaveRegistryLocallyPatches.Enable();
+        EnumConverterStubs.Apply(Log);
 
         new PatchManager(this, true).EnablePatches();
 

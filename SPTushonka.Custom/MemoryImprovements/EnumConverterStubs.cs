@@ -5,7 +5,7 @@ using BepInEx.Logging;
 using Il2CppInterop.Runtime;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
 
-namespace SPTushonka.Core.Patches;
+namespace SPTushonka.Custom.MemoryImprovements;
 
 // EnumHelper<T> converts values through Expression.Compile delegates, which il2cpp runs in the LINQ interpreter.
 // This causes a massive memory spike of a few mb/s, this class undoes those allocations.
