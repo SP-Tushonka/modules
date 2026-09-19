@@ -15,6 +15,7 @@ public class Plugin : BasePlugin
     {
         ClassInjector.RegisterTypeInIl2Cpp<FakeCertificateHandler>();
         FilesCheckerStubs.Apply(Log);
+        EnumConverterStubs.Apply(Log);
 
         new PatchManager(this, true).EnablePatches();
 
