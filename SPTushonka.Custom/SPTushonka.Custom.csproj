@@ -7,5 +7,9 @@
   <ItemGroup>
     <ProjectReference Include="../SPTushonka.Reflection/SPTushonka.Reflection.csproj" />
     <ProjectReference Include="../SPTushonka.Common/SPTushonka.Common.csproj" />
+    <Reference Include="UnityEngine.ParticleSystemModule">
+      <HintPath>$(Interop)/UnityEngine.ParticleSystemModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
 </Project>
