@@ -3,4 +3,10 @@
     <AssemblyName>SPTushonka.Reflection</AssemblyName>
     <RootNamespace>SPTushonka.Reflection</RootNamespace>
   </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Diz.Jobs">
+      <HintPath>$(Interop)/Diz.Jobs.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
 </Project>

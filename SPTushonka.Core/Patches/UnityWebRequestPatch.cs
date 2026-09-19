@@ -1,7 +1,7 @@
 using System.Reflection;
 using HarmonyLib;
-using Il2CppInterop.Runtime.Injection;
 using SPTushonka.Core.Models;
+using SPTushonka.Reflection.Il2Cpp;
 using SPTushonka.Reflection.Patching;
 using UnityEngine.Networking;
 
@@ -20,7 +20,7 @@ public class UnityWebRequestPatch : ModulePatch
     [PatchPostfix]
     private static void PatchPostfix(UnityWebRequest __result)
     {
-        __result.certificateHandler = new FakeCertificateHandler(ClassInjector.DerivedConstructorPointer<FakeCertificateHandler>());
+        __result.certificateHandler = new FakeCertificateHandler(Il2CppInjection.Allocate<FakeCertificateHandler>());
         __result.disposeCertificateHandlerOnDispose = true;
         __result.timeout = 15000;
     }

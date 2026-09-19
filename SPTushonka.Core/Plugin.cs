@@ -1,9 +1,8 @@
 ﻿using BepInEx;
 using BepInEx.Unity.IL2CPP;
-using Il2CppInterop.Runtime.Injection;
 using SPTushonka.Core.Models;
 using SPTushonka.Core.Patches;
-
+using SPTushonka.Reflection.Il2Cpp;
 using SPTushonka.Reflection.Patching;
 
 namespace SPTushonka.Core;
@@ -13,7 +12,7 @@ public class Plugin : BasePlugin
 {
     public override void Load()
     {
-        ClassInjector.RegisterTypeInIl2Cpp<FakeCertificateHandler>();
+        MainThread.Install(this);
         FilesCheckerStubs.Apply(Log);
 
         new PatchManager(this, true).EnablePatches();

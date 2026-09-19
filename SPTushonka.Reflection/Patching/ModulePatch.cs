@@ -168,7 +168,17 @@ public abstract class ModulePatch
 
         try
         {
-            _harmony.Unpatch(TargetMethod, HarmonyPatchType.All, _harmony.Id);
+            var info = Harmony.GetPatchInfo(TargetMethod);
+            var patches = info == null ? [] : info.Prefixes.Concat(info.Postfixes).Concat(info.Finalizers).ToList();
+
+            foreach (var patch in patches)
+            {
+                if (patch.PatchMethod.DeclaringType == GetType())
+                {
+                    _harmony.Unpatch(TargetMethod, patch.PatchMethod);
+                }
+            }
+
             Logger.LogInfo($"Disabled patch {name}");
 
             IsActive = false;
