@@ -11,7 +11,7 @@ using SPTushonka.Reflection.Patching;
 
 namespace SPTushonka.Custom;
 
-[BepInPlugin("sptushonka.custom", "SPTushonka Custom", PluginInfo.Version)]
+[BepInPlugin("com.sptushonka.custom", "SPTushonka Custom", PluginInfo.Version)]
 public class Plugin : BasePlugin
 {
     // Redirect the game's icon cache to the SPT_Runtime directory

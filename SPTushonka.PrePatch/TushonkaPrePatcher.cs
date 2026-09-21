@@ -12,7 +12,7 @@ namespace SPTushonka.PrePatch;
 
 // The game's il2cpp exports take a token argument and return garbage without it, so Il2CppInterop's
 // documented calls all fail. The export entries are rewritten in memory. No game file is modified.
-[PatcherPluginInfo("sptushonka.prepatch", "SPTushonka PrePatch", PluginInfo.Version)]
+[PatcherPluginInfo("com.sptushonka.prepatch", "SPTushonka PrePatch", PluginInfo.Version)]
 public class SPTushonkaPrePatcher : BasePatcher
 {
     // Token Il2Cppmscorlib resolves for Type.op_Equality, the first il2cpp call Harmony's resolver makes.

@@ -156,4 +156,12 @@ public static class Il2CppConversions
     {
         return Il2CppType.From(type);
     }
+
+    /// <summary>
+    /// The generated wrapper type of an il2cpp type. Null for generic instantiations, arrays and types without a wrapper.
+    /// </summary>
+    public static Type ToManaged(this Il2CppSystem.Type type)
+    {
+        return Il2CppType.ToManaged(type);
+    }
 }

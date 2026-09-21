@@ -4,6 +4,10 @@
     <RootNamespace>SPTushonka.Reflection</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Il2CppInterop.Common">
+      <HintPath>$(BepInExCore)/Il2CppInterop.Common.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="Diz.Jobs">
       <HintPath>$(Interop)/Diz.Jobs.dll</HintPath>
       <Private>false</Private>

@@ -7,7 +7,7 @@ using SPTushonka.Reflection.Patching;
 
 namespace SPTushonka.Core;
 
-[BepInPlugin("sptushonka.core", "SPTushonka Core", PluginInfo.Version)]
+[BepInPlugin("com.sptushonka.core", "SPTushonka Core", PluginInfo.Version)]
 public class Plugin : BasePlugin
 {
     public override void Load()
