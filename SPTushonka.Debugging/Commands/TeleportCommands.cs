@@ -6,36 +6,13 @@ using EFT.GameTriggers;
 using EFT.Interactive;
 using EFT.InventoryLogic;
 using EFT.UI;
-using Il2CppInterop.Runtime;
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
+using SPTushonka.Reflection.Commands;
 using UnityEngine;
 
 namespace SPTushonka.Debugging.Commands;
 
 public static class TeleportCommands
 {
-    public static void Register()
-    {
-        Register("tp", "Teleport to a scene object by name", ToObject);
-        Register("tpzone", "Teleport to a quest trigger by id", ToZone);
-        Register("tpitem", "Teleport to a loose item by template id or name", ToItem);
-        Register("tpdoor", "Teleport to a door or other interactive object by id", ToDoor);
-        Register("tpexit", "Teleport to an extraction point by name", ToExit);
-        Register("tpcontainer", "Teleport to a container by its template, name, or an item template inside it", ToContainer);
-        Register("tpbot", "Teleport next to a living bot by role or nickname", ToBot);
-        Register("trigger", "Fire a game trigger by id as the main player", FireTrigger);
-        ConsoleScreen.Processor.RegisterCommand("zones", new Action(() => ReportZones("")), "Report every rally zone and whether the player is inside it");
-        ConsoleScreen.Processor.RegisterCommand("tprally", new Action(ToRally), "Teleport into the first rally zone collider");
-    }
-
-    internal static void Register(string name, string description, Action<string> handler)
-    {
-        var arguments = new Il2CppReferenceArray<Il2CppSystem.Type>(new[] { Il2CppType.Of<string>() });
-        Il2CppSystem.Action<Il2CppReferenceArray<Il2CppSystem.Object>> call =
-            new Action<Il2CppReferenceArray<Il2CppSystem.Object>>(args => handler(args == null || args.Length == 0 || args[0] == null ? "" : args[0].ToString()));
-        ConsoleScreen.Processor.RegisterAnonymousCommand(name, arguments, call, description);
-    }
-
     private static void Go(Vector3 position, string label)
     {
         var player = Singleton<GameWorld>.Instance?.MainPlayer;
@@ -51,7 +28,8 @@ public static class TeleportCommands
         ConsoleScreen.Log($"Teleported to {label} at {position}");
     }
 
-    private static void ToObject(string name)
+    [ConsoleCommand("tp", description: "Teleport to a scene object by name")]
+    public static void ToObject(string name = "")
     {
         for (var sceneIndex = 0; sceneIndex < UnityEngine.SceneManagement.SceneManager.sceneCount; sceneIndex++)
         {
@@ -75,7 +53,8 @@ public static class TeleportCommands
         ConsoleScreen.LogError($"No object named '{name}'");
     }
 
-    private static void ToZone(string id)
+    [ConsoleCommand("tpzone", description: "Teleport to a quest trigger by id")]
+    public static void ToZone(string id = "")
     {
         foreach (var trigger in UnityEngine.Object.FindObjectsOfType<TriggerWithId>(true))
         {
@@ -89,7 +68,8 @@ public static class TeleportCommands
         ConsoleScreen.LogError($"No trigger with id '{id}'");
     }
 
-    private static void ToBot(string text)
+    [ConsoleCommand("tpbot", description: "Teleport next to a living bot by role or nickname")]
+    public static void ToBot(string text = "")
     {
         var world = Singleton<GameWorld>.Instance;
         var players = world == null ? null : world.AllAlivePlayersList;
@@ -120,7 +100,8 @@ public static class TeleportCommands
         ConsoleScreen.LogError($"No living bot matching '{text}'. Alive: {(summary.Count == 0 ? "none" : string.Join(", ", summary))}");
     }
 
-    private static void ToDoor(string id)
+    [ConsoleCommand("tpdoor", description: "Teleport to a door or other interactive object by id")]
+    public static void ToDoor(string id = "")
     {
         foreach (var door in UnityEngine.Object.FindObjectsOfType<WorldInteractiveObject>(true))
         {
@@ -141,7 +122,8 @@ public static class TeleportCommands
         return items != null && items.Any(item => item != null && item.TemplateId.ToString().StartsWith(text, StringComparison.OrdinalIgnoreCase));
     }
 
-    private static void ToContainer(string text)
+    [ConsoleCommand("tpcontainer", description: "Teleport to a container by its template, name, or an item template inside it")]
+    public static void ToContainer(string text = "")
     {
         var scanned = 0;
         foreach (var container in UnityEngine.Object.FindObjectsOfType<LootableContainer>(true))
@@ -170,7 +152,8 @@ public static class TeleportCommands
         return template.StartsWith(text, StringComparison.OrdinalIgnoreCase) || loot.name.IndexOf(text, StringComparison.OrdinalIgnoreCase) >= 0;
     }
 
-    private static void ToItem(string text)
+    [ConsoleCommand("tpitem", description: "Teleport to a loose item by template id or name")]
+    public static void ToItem(string text = "")
     {
         var world = Singleton<GameWorld>.Instance;
         if (world == null)
@@ -205,7 +188,8 @@ public static class TeleportCommands
     }
 
     // Fires a trigger the way a zone would, so a chain can be tested without standing in it.
-    private static void FireTrigger(string id)
+    [ConsoleCommand("trigger", description: "Fire a game trigger by id as the main player")]
+    public static void FireTrigger(string id = "")
     {
         var world = Singleton<GameWorld>.Instance;
         var player = world == null ? null : world.MainPlayer;
@@ -215,11 +199,12 @@ public static class TeleportCommands
             return;
         }
 
-        world.TriggersEmitter.Emit(id, player.PlayerId);
+        world.TriggersEmitter.Emit(id, player.RaidId);
         ConsoleScreen.Log($"Fired trigger '{id}'");
     }
 
-    private static void ReportZones(string _)
+    [ConsoleCommand("zones", description: "Report every rally zone and whether the player is inside it")]
+    public static void ReportZones()
     {
         var world = Singleton<GameWorld>.Instance;
         var player = world == null ? null : world.MainPlayer;
@@ -277,7 +262,8 @@ public static class TeleportCommands
         }
     }
 
-    private static void ToRally()
+    [ConsoleCommand("tprally", description: "Teleport into the first rally zone collider")]
+    public static void ToRally()
     {
         foreach (var zone in UnityEngine.Object.FindObjectsOfType<TriggerRallyZone>(true))
         {
@@ -291,7 +277,8 @@ public static class TeleportCommands
         ConsoleScreen.LogError("No rally zone collider found");
     }
 
-    private static void ToExit(string name)
+    [ConsoleCommand("tpexit", description: "Teleport to an extraction point by name")]
+    public static void ToExit(string name = "")
     {
         var names = new System.Collections.Generic.List<string>();
         foreach (var exit in UnityEngine.Object.FindObjectsOfType<ExfiltrationPoint>(true))

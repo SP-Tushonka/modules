@@ -5,6 +5,7 @@ using EFT.Ballistics;
 using EFT.HealthSystem;
 using EFT.UI;
 using HarmonyLib;
+using SPTushonka.Reflection.Commands;
 using SPTushonka.Reflection.Patching;
 
 namespace SPTushonka.Debugging.Commands;
@@ -19,6 +20,7 @@ public static class GodModeCommand
         return player != null && player.ActiveHealthController == controller;
     }
 
+    [ConsoleCommand("god", description: "Toggle invulnerability for the main player")]
     public static void Toggle()
     {
         Enabled = !Enabled;

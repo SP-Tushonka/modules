@@ -97,19 +97,39 @@ public static class MainThread
     }
 
     /// <summary>
-    /// Attaches a managed worker thread to IL2CPP if needed. This permits IL2CPP runtime access,
-    /// but does not make Unity APIs safe to call from that thread.
+    /// Attaches a managed worker thread to IL2CPP until the returned scope is disposed. A thread that is already
+    /// attached is left as it is. This permits IL2CPP runtime access, but does not make Unity APIs safe to call.
     /// </summary>
-    public static void AttachToIl2Cpp()
+    public static Il2CppThreadScope AttachToIl2Cpp()
     {
         if (IL2CPP.il2cpp_thread_current() != IntPtr.Zero)
         {
-            return;
+            return default;
         }
 
-        IL2CPP.il2cpp_thread_attach(IL2CPP.il2cpp_domain_get());
-        // Mark managed workers as background threads so IL2CPP does not wait for them during shutdown.
-        Il2CppSystem.Threading.Thread.CurrentThread.IsBackground = true;
+        return new Il2CppThreadScope(IL2CPP.il2cpp_thread_attach(IL2CPP.il2cpp_domain_get()));
+    }
+
+    /// <summary>
+    /// Detaches the thread <see cref="AttachToIl2Cpp"/> attached. IL2CPP's shutdown aborts every attached thread with
+    /// an APC and joins it, and a CLR pool thread never waits alertably, so a worker left attached hangs quitting.
+    /// </summary>
+    public readonly struct Il2CppThreadScope : IDisposable
+    {
+        private readonly IntPtr _thread;
+
+        internal Il2CppThreadScope(IntPtr thread)
+        {
+            _thread = thread;
+        }
+
+        public void Dispose()
+        {
+            if (_thread != IntPtr.Zero)
+            {
+                IL2CPP.il2cpp_thread_detach(_thread);
+            }
+        }
     }
 
     internal static bool TryPost(Action action)

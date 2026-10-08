@@ -2,6 +2,7 @@
 using BepInEx.Unity.IL2CPP;
 using SPTushonka.Core.Models;
 using SPTushonka.Core.Patches;
+using SPTushonka.Reflection.Commands;
 using SPTushonka.Reflection.Il2Cpp;
 using SPTushonka.Reflection.Patching;
 
@@ -14,6 +15,7 @@ public class Plugin : BasePlugin
     {
         MainThread.Install(this);
         FilesCheckerStubs.Apply(Log);
+        ConsoleCommandRegistry.Initialise();
 
         new PatchManager(this, true).EnablePatches();
 

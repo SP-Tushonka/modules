@@ -5,6 +5,7 @@ using EFT;
 using EFT.HealthSystem;
 using EFT.UI;
 using HarmonyLib;
+using SPTushonka.Reflection.Commands;
 using SPTushonka.Reflection.Patching;
 using UnityEngine;
 
@@ -37,6 +38,7 @@ public static class NoclipCommand
         _position = position;
     }
 
+    [ConsoleCommand("noclip", description: "Toggle free flight through geometry for the main player")]
     public static void Toggle()
     {
         var player = Singleton<GameWorld>.Instance?.MainPlayer;

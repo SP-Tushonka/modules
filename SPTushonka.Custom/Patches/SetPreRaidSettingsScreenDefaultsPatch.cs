@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Text.Json;
+using EFT;
 using EFT.UI.Matchmaker;
 using HarmonyLib;
 using SPTushonka.Common.Http;
@@ -9,7 +10,7 @@ using SPTushonka.Reflection.Patching;
 namespace SPTushonka.Custom.Patches;
 
 /// <summary>
-/// Seed the offline raid screen with the server's raid defaults and unlock its settings button
+///     Seed the offline raid screen with the server's raid defaults, reset its raid mode and unlock its settings
 /// </summary>
 public class SetPreRaidSettingsScreenDefaultsPatch : ModulePatch
 {
@@ -22,11 +23,21 @@ public class SetPreRaidSettingsScreenDefaultsPatch : ModulePatch
         );
     }
 
+    /// <summary>
+    ///     Untick the offline toggle, reset the raid mode and apply the server's raid defaults before the screen shows
+    /// </summary>
+    /// <param name="__instance">Offline raid screen</param>
+    /// <param name="__0">Screen controller holding the raid settings</param>
     [PatchPrefix]
     public static void PatchPrefix(MatchmakerOfflineRaidScreen __instance, MatchmakerOfflineRaidScreen.OfflineRaidScreenController __0)
     {
-        // Default checkbox to be unchecked so we're in PvE
+        // An unticked offline toggle is PvE
         __instance._offlineModeToggle.isOn = false;
+
+        // ForceRaidModeToLocalPatches leaves the last raid's Local mode on both settings. The toggle only sets the mode
+        // when its value changes, and a Local mode skips the insurance screen.
+        __0.RaidSettings.RaidMode = ERaidMode.Online;
+        __0.OfflineRaidSettings.RaidMode = ERaidMode.Online;
 
         var json = RequestHandler.GetJson("/singleplayer/settings/raid/menu");
         var defaults = JsonSerializer.Deserialize<DefaultRaidSettings>(json, DefaultRaidSettings.SerializerOptions);
@@ -35,7 +46,7 @@ public class SetPreRaidSettingsScreenDefaultsPatch : ModulePatch
             return;
         }
 
-        // The settings are value types behind interop properties, so each one is copied out, changed and written back
+        // These are struct fields exposed as properties, so each one is copied out, changed and written back
         var settings = __0.OfflineRaidSettings;
 
         var bots = settings.BotSettings;
@@ -56,6 +67,10 @@ public class SetPreRaidSettingsScreenDefaultsPatch : ModulePatch
         settings.TimeAndWeatherSettings = weather;
     }
 
+    /// <summary>
+    ///     Hide the online blocker and the warning panel, and enable the settings button
+    /// </summary>
+    /// <param name="__instance">Offline raid screen</param>
     [PatchPostfix]
     public static void PatchPostfix(MatchmakerOfflineRaidScreen __instance)
     {

@@ -8,7 +8,7 @@ internal sealed class RemoveHwInfoPatch : ModulePatch
 {
     protected override MethodBase GetTargetMethod()
     {
-        return AccessTools.Method(typeof(HWEcho), nameof(HWEcho.HWEcho_Json));
+        return AccessTools.Method(typeof(HWEcho), nameof(HWEcho.GetMetrics));
     }
 
     [PatchPrefix]

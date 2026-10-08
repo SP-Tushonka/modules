@@ -2,6 +2,7 @@ using System;
 using Comfort.Common;
 using EFT;
 using EFT.UI;
+using SPTushonka.Reflection.Commands;
 
 namespace SPTushonka.Debugging.Commands;
 
@@ -9,7 +10,8 @@ namespace SPTushonka.Debugging.Commands;
 // (Survived, Killed, Left, Runner, MissingInAction, Transit) through the first extraction point.
 public static class DebugExtractCommand
 {
-    public static void Run(string text)
+    [ConsoleCommand("debug_extract", description: "End the raid with an exit status: Survived, Killed, Left, Runner, MissingInAction, Transit")]
+    public static void Run(string text = "")
     {
         if (!Enum.TryParse(text, true, out ExitStatus status))
         {

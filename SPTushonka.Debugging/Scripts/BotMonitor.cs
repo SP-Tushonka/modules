@@ -5,6 +5,7 @@ using Comfort.Common;
 using EFT;
 using EFT.UI;
 using Il2CppInterop.Runtime.Attributes;
+using SPTushonka.Reflection.Commands;
 using UnityEngine;
 
 namespace SPTushonka.Debugging.Scripts;
@@ -19,6 +20,7 @@ public class BotMonitor(IntPtr pointer) : MonoBehaviour(pointer)
     private GUIContent _content;
     private readonly StringBuilder _text = new();
 
+    [ConsoleCommand("botmon", description: "Toggle the bot monitor overlay, alive bots per zone with role, difficulty and distance")]
     public static void Toggle()
     {
         if (_host != null)
