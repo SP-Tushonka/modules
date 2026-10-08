@@ -20,7 +20,7 @@ public class SPTushonkaPrePatcher : BasePatcher
 
     public override void Initialize()
     {
-        Logger.Listeners.Add(new LoaderLogListener());
+        //Logger.Listeners.Add(new LoaderLogListener());
         StartupChecks.Run(Log);
         try
         {
