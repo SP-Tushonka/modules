@@ -21,13 +21,12 @@ public class RedirectClientImageRequestsPatch : ModulePatch
 
     protected override MethodBase GetTargetMethod()
     {
-        return AccessTools.Method(typeof(ClientBackendSession), nameof(ClientBackendSession.LoadTextureWithCache));
+        return AccessTools.Method(typeof(ClientBackendSession), nameof(ClientBackendSession.LoadTextureMain));
     }
 
     [PatchPrefix]
-    public static bool PatchPrefix(string __1, ref Il2CppSystem.Threading.Tasks.Task<Texture2D> __result)
+    public static bool PatchPrefix(string url, ref Il2CppSystem.Threading.Tasks.Task<Texture2D> __result)
     {
-        var url = __1;
         var texture = ResourcesCache.Pop<Texture2D>(url.ConvertToResourceLocation(true));
         if (texture == null)
         {

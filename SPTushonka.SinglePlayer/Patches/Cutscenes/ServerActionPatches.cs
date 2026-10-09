@@ -8,6 +8,7 @@ using EFT;
 using EFT.GameTriggers;
 using EFT.Interactive;
 using HarmonyLib;
+using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using SPTushonka.Reflection.Patching;
 using UnityEngine;
 
@@ -78,31 +79,44 @@ public static class ServerActionPatches
             game.Stop(player.ProfileId, status, FinallExitZone.FINAL_EXIT_NAME, 0f);
         }
     }
-
+    
     public class InitActionPatch : ModulePatch
     {
         protected override MethodBase GetTargetMethod()
         {
-            return AccessTools.Method(typeof(CutscenesServerController), nameof(CutscenesServerController.InitAction));
+            return AccessTools.Method(typeof(CutscenesServerController), nameof(CutscenesServerController.InitActions));
         }
 
         [PatchPrefix]
-        public static bool Prefix(CutscenesServerController __instance, string actionId, Il2CppSystem.Collections.Generic.List<int> playersId, string cutsceneId)
+        public static bool Prefix(
+            CutscenesServerController __instance,
+            Il2CppStringArray actionsId,
+            Il2CppSystem.Collections.Generic.List<int> playersId,
+            string cutsceneId
+        )
         {
-            try
+            if (actionsId == null || __instance._actions == null)
             {
-                if (__instance._actions == null || !__instance._actions.TryGetValue(actionId, out var action) || action == null)
-                {
-                    return false;
-                }
-
-                action.playersId = playersId;
-                action.cutsceneId = cutsceneId;
-                Emulate(action, playersId);
+                return false;
             }
-            catch (Exception ex)
+
+            foreach (var actionId in actionsId)
             {
-                Logger.LogError($"server action '{actionId}' failed: {ex}");
+                try
+                {
+                    if (string.IsNullOrEmpty(actionId) || !__instance._actions.TryGetValue(actionId, out var action) || action == null)
+                    {
+                        continue;
+                    }
+
+                    action.playersId = playersId;
+                    action.cutsceneId = cutsceneId;
+                    Emulate(action, playersId);
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogError($"server action '{actionId}' failed: {ex}");
+                }
             }
 
             return false;
