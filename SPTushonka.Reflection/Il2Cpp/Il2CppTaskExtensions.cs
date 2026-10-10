@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Diz.Jobs;
 using Il2CppInterop.Runtime;
-using Il2CppInterop.Runtime.Injection;
+using Il2CppInterop.Runtime.Runtime;
 using Il2CppTask = Il2CppSystem.Threading.Tasks.Task;
 
 namespace SPTushonka.Reflection.Il2Cpp;
@@ -63,7 +63,7 @@ public static class Il2CppTaskExtensions
             }
         }
 
-        task.ContinueWith(DelegateSupport.ConvertDelegate<Il2CppSystem.Action<Il2CppTask>>(new Action<Il2CppTask>(Complete)));
+        task.ContinueWith(Complete);
         return source.Task;
     }
 
@@ -142,12 +142,13 @@ public static class Il2CppTaskExtensions
     }
 
     /// <summary>
-    /// Wraps a managed iterator for Unity. IL2CPP yield instructions pass through and nested managed iterators
-    /// are wrapped. Null and unsupported yielded values become a frame delay.
+    /// Wraps a managed iterator as an IL2CPP IEnumerator, for overrides that must return one. StartCoroutine takes a
+    /// managed iterator directly. IL2CPP yield instructions, primitives and strings pass through and nested managed
+    /// iterators are wrapped.
     /// </summary>
     public static Il2CppSystem.Collections.IEnumerator ToIl2Cpp(this IEnumerator enumerator)
     {
-        return new ManagedEnumerator(enumerator);
+        return Il2CppObjectPool.Get<Il2CppSystem.Collections.IEnumerator>(ManagedArguments.ToIl2CppEnumerator(enumerator));
     }
 
     /// <summary>
@@ -180,7 +181,7 @@ public readonly struct JobAwaitable(IJobAwaiter awaiter) : INotifyCompletion
 
     public void OnCompleted(Action continuation)
     {
-        awaiter.OnCompleted(DelegateSupport.ConvertDelegate<Il2CppSystem.Action>(continuation));
+        awaiter.OnCompleted(continuation);
     }
 
     public void GetResult()
@@ -189,74 +190,3 @@ public readonly struct JobAwaitable(IJobAwaiter awaiter) : INotifyCompletion
     }
 }
 
-/// <summary>
-/// Lets Unity step a managed iterator through its IL2CPP IEnumerator interface.
-/// </summary>
-public class ManagedEnumerator : Il2CppSystem.Object, Il2CppSystem.Collections.IEnumerator
-{
-    private static bool _registered;
-    private readonly IEnumerator _inner;
-
-    public ManagedEnumerator(IntPtr pointer) : base(pointer)
-    {
-    }
-
-    public ManagedEnumerator(IEnumerator inner) : base(Register())
-    {
-        ClassInjector.DerivedConstructorBody(this);
-        _inner = inner;
-    }
-
-    private static IntPtr Register()
-    {
-        if (!_registered)
-        {
-            ClassInjector.RegisterTypeInIl2Cpp<ManagedEnumerator>();
-            _registered = true;
-        }
-
-        return ClassInjector.DerivedConstructorPointer<ManagedEnumerator>();
-    }
-
-    private Il2CppSystem.Object _current;
-
-    public bool MoveNext()
-    {
-        if (!_inner.MoveNext())
-        {
-            _current = null;
-            return false;
-        }
-
-        // Unity needs an IL2CPP wrapper to recognize a nested managed coroutine.
-        _current = _inner.Current switch
-        {
-            Il2CppSystem.Object il2cppObject => il2cppObject,
-            IEnumerator nested => new ManagedEnumerator(nested),
-            _ => null
-        };
-        return true;
-    }
-
-    public Il2CppSystem.Object Current
-    {
-        get
-        {
-            return _current;
-        }
-    }
-
-    // The interop interface also inherits managed IEnumerator, whose Current returns System.Object.
-    object IEnumerator.Current
-    {
-        get
-        {
-            return _current;
-        }
-    }
-
-    public void Reset()
-    {
-        _inner.Reset();
-    }
-}
