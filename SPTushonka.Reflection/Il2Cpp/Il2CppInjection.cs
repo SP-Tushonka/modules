@@ -8,34 +8,21 @@ using Il2CppInterop.Runtime.InteropTypes;
 namespace SPTushonka.Reflection.Il2Cpp;
 
 /// <summary>
-/// Registers managed subclasses with IL2CPP and allocates their native instances.
+/// Registers managed subclasses with IL2CPP ahead of time.
 /// </summary>
 /// <remarks>
-/// Use these helpers for mod-defined subclasses of IL2CPP types. Registration makes the type visible to the
-/// game, allocation creates an instance. Call during main-thread initialization to avoid concurrent registration.
+/// A mod type registers itself the first time managed code uses it, through new, AddComponent or typeof. Ahead of
+/// time registration is only needed when game code creates a mod type first. Call during main-thread
+/// initialization to avoid concurrent registration.
 /// </remarks>
 public static class Il2CppInjection
 {
-    /// <summary>
-    /// Registers T if needed and allocates its native instance. Pass the pointer to the base constructor,
-    /// then call ClassInjector.DerivedConstructorBody(this) in the managed constructor body.
-    /// </summary>
-    public static IntPtr Allocate<T>() where T : Il2CppObjectBase
-    {
-        if (!ClassInjector.IsTypeRegisteredInIl2Cpp<T>())
-        {
-            ClassInjector.RegisterTypeInIl2Cpp<T>();
-        }
-
-        return ClassInjector.DerivedConstructorPointer<T>();
-    }
-
     /// <summary>
     /// Attempts to register each class derived from an IL2CPP type that has no open generic parameters.
     /// Base types are processed first. Individual registration failures are logged and do not stop the scan.
     /// </summary>
     /// <remarks>
-    /// Use when game code needs to construct mod types before a managed constructor calls Allocate.
+    /// Use when game code needs to construct mod types before managed code first uses them.
     /// Supply the mod assembly, rather than an assembly containing generated game wrappers.
     /// </remarks>
     public static void RegisterAll(Assembly assembly, ManualLogSource logger)

@@ -7,6 +7,10 @@ namespace SPTushonka.Core.Models;
 
 public class FakeCertificateHandler : CertificateHandler
 {
+    public FakeCertificateHandler() : this(ClassInjector.DerivedConstructorPointer<FakeCertificateHandler>())
+    {
+    }
+
     // Needed because otherwise this crashes during finalising because no GC exists
     public FakeCertificateHandler(IntPtr pointer) : base(pointer)
     {
