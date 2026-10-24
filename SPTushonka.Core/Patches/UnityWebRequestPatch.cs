@@ -12,15 +12,19 @@ public class UnityWebRequestPatch : ModulePatch
 {
     protected override MethodBase GetTargetMethod()
     {
-        return AccessTools.Method(typeof(UnityWebRequestTexture), nameof(UnityWebRequestTexture.GetTexture),
-            new[] { typeof(string) });
+        return AccessTools.Method(typeof(UnityWebRequest), nameof(UnityWebRequest.SendWebRequest));
     }
 
-    [PatchPostfix]
-    private static void PatchPostfix(UnityWebRequest __result)
+    [PatchPrefix]
+    private static void PatchPrefix(UnityWebRequest __instance)
     {
-        __result.certificateHandler = new FakeCertificateHandler();
-        __result.disposeCertificateHandlerOnDispose = true;
-        __result.timeout = 15000;
+        if (__instance.certificateHandler != null || __instance.downloadHandler?.TryCast<DownloadHandlerTexture>() == null)
+        {
+            return;
+        }
+
+        __instance.certificateHandler = new FakeCertificateHandler();
+        __instance.disposeCertificateHandlerOnDispose = true;
+        __instance.timeout = 15000;
     }
 }

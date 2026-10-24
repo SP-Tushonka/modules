@@ -63,7 +63,17 @@ public static class Il2CppTaskExtensions
             }
         }
 
-        task.ContinueWith(Complete);
+        // A continuation on a finished task runs on a later frame. Callers of Player.Init set AIData after the player
+        // is in the alive list, so a synchronous Init must resume inline
+        if (task.IsCompleted)
+        {
+            Complete(task);
+        }
+        else
+        {
+            task.ContinueWith(Complete);
+        }
+
         return source.Task;
     }
 
