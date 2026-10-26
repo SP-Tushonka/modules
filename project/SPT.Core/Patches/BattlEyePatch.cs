@@ -1,4 +1,3 @@
-using SPT.Core.Utils;
 using SPT.Reflection.Patching;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -16,7 +15,7 @@ namespace SPT.Core.Patches
         [PatchPrefix]
         private static bool PatchPrefix(ref Task __result, ref bool ___bool_0)
         {
-            ___bool_0 = ValidationUtil.Validate();
+            ___bool_0 = true;
             __result = Task.CompletedTask;
             return false;
         }
