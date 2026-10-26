@@ -14,6 +14,7 @@
 
     <ItemGroup>
         <Reference Include="Assembly-CSharp" HintPath="..\Shared\Hollowed\hollowed.dll" Private="False" />
+    <Reference Include="UnityEngine.CoreModule" HintPath="..\Shared\Managed\UnityEngine.CoreModule.dll" Private="False" />
     </ItemGroup>
 
     <ItemGroup>
