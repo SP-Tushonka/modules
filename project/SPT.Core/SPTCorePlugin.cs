@@ -21,7 +21,6 @@ namespace SPT.Core
             {
                 new ConsistencySinglePatch().Enable();
                 new ConsistencyMultiPatch().Enable();
-                new GameValidationPatch().Enable();
                 new BattlEyePatch().Enable();
                 new SslCertificatePatch().Enable();
                 new UnityWebRequestPatch().Enable();

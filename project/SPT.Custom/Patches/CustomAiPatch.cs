@@ -8,7 +8,6 @@ using HarmonyLib;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using SPT.Common.Http;
-using SPT.Core.Utils;
 
 namespace SPT.Custom.Patches
 {
@@ -61,9 +60,6 @@ namespace SPT.Custom.Patches
                 {
                     // Standard scav, check for custom brain option
                     ___botOwner_0.Profile.Info.Settings.Role = aIBrainSpawnWeightAdjustment.GetAssaultScavWildSpawnType(___botOwner_0, currentMapName);
-                    ___botOwner_0.Profile.Info.Settings.BotDifficulty = ValidationUtil._crashHandler == "0"
-                        ? BotDifficulty.impossible
-                        : ___botOwner_0.Profile.Info.Settings.BotDifficulty;
 
                     return true; // Do original
                 }
