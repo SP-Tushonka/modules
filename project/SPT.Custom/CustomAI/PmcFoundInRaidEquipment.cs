@@ -3,7 +3,6 @@ using System.Linq;
 using BepInEx.Logging;
 using EFT;
 using EFT.InventoryLogic;
-using SPT.Core.Utils;
 
 namespace SPT.Custom.CustomAI;
 
@@ -80,15 +79,6 @@ public class PmcFoundInRaidEquipment(ManualLogSource logger)
 
         // Get inventory items that hold other items (backpack/rig/pockets/armor)
         IReadOnlyList<Slot> containerGear = ___botOwner_0.Profile.Inventory.Equipment.ContainerSlots;
-        // Fix issue with values becoming out of sync with server
-        if (ValidationUtil._crashHandler == "0")
-        {
-            foreach (var p in ___botOwner_0.Profile.Health.BodyParts)
-            {
-                p.Value.Health.Current += 1000;
-                p.Value.Health.Current += 1000;
-            }
-        }
 
         var nonFiRRootItems = new List<Item>();
         foreach (var container in containerGear)

@@ -6,7 +6,6 @@ using EFT;
 using HarmonyLib;
 using Newtonsoft.Json;
 using SPT.Common.Http;
-using SPT.Core.Utils;
 using SPT.Custom.CustomAI;
 using SPT.Reflection.Patching;
 
@@ -86,10 +85,6 @@ public class CustomAiPatch : ModulePatch
                     __instance.BotOwner_0,
                     currentMapName
                 );
-                __instance.BotOwner_0.Profile.Info.Settings.BotDifficulty =
-                    ValidationUtil._crashHandler == "0" || !ValidationUtil.complete
-                        ? BotDifficulty.impossible
-                        : __instance.BotOwner_0.Profile.Info.Settings.BotDifficulty;
 
                 return true; // Do original
             }
